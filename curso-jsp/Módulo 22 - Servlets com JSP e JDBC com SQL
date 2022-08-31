@@ -465,3 +465,4 @@ objetos Java, fazendo as devidas conversões.
 seja, ele recebe a lista de usuários retornada do DB e a transforma em uma String. Uma lista, quando transformada em String, terá o formato de um JSON.
 7) Por fim, a response agora pode escrever essa list como uma String, e mandar essa resposta para a tela. Os próximos passos virão dentro do function JS do passo 2, que será
 responsável por formatar essa lista e mostra-la de forma correta dentro da tela.
+
