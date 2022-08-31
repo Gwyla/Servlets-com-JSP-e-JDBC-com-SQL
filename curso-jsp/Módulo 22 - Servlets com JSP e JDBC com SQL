@@ -1,0 +1,467 @@
+Módulo 22 - Servlets com JSP e JDBC com SQL
+
+JavaServer Pages - JSP:
+
+É uma tecnologia utilizada para criar aplicações web, assim como um Servlet. Ele pode ser pensado como uma extensão para Servlet.
+Uma página JSP consiste em tags HTML + tags JSP. São mais fáceis de manter do que um Servlet, porque podemos separar o design e o desenvolvimento.
+O JSP passou por grandes evoluções até alcançar a arquitetura MVC.
+
+Vantagens JSP sobre Servlets:
+
+a) Extensão do Servlet, traz todas as funcionalidades dele e mais algumas facilidades.
+b) Facilidade de manter, separando lógica de negócio e lógica de apresentação.
+c) Desenvolvimento rápido, não sendo necessário recompilar e reimplantar todo o projeto a cada mudança na página.
+d) Menos código que Servlet.
+
+Ciclo de vida de uma página JSP:
+1) O usuário acessa a página web feita em JSP. Essa página leva a um JSP Translator, que faz a conversa entre JSP e HTML.
+2) Nessa conversa é necessário passar por um Servlet (.javafile), que será compilado, e que a cada momento essa camadas vão ficando mais internas,
+passando por um Class file, JRE, Servlet Object, e por fim um Buffer (dynamic content) que retornará ao usuário toda a interação feita dentro da página.
+
+Observações:
+
+JSP não é um framework, mas sim uma LINGUAGEM DE SCRIPT. Por conta disso, tem como objetivo primário a geração de conteúdo dinâmico. Por mais que apresente
+semelhança com a arquitetura de frameworks (possuindo a arquitetura MVC), ainda assim o JSP se mantém como uma linguagem de script, e não um framework.
+
+CRIANDO DYNAMIC WEB PROJECT:
+
+Criamos esse projeto selecionando o Apache Tomcat 10, e depois transformamos esse projeto em um Maven Project, por meio de BDM -> Configure -> Convert to Maven Project.
+Na estrutura, dentro de src/main/java fica todas as classes com regras de negócio em Java, e dentro de src/main/webapp é onde ficam as páginas web.
+
+CRIANDO NOSSA PRIMEIRA PÁGINA JSP:
+Fomos em src -> main -> webapp -> BDM em cima de webapp -> New jsp file, e criamos o index.jsp. Para iniciarmos nossa página:
+1) Fomos em WEB-INF -> web.xml -> e dentro desse arquivo, apagamos todos os <welcome-files>, menos o index.jsp.
+2) Adicionamos esse projeto ao Tomcat por meio de Servers -> BDM em Tomcat -> Add and Remove e escolhemos o projeto curso-jsp.
+*Obs.: nesse servidor Tomcat já existia outro projeto associado, e na hora de dar Start no server, ele apresentou erro. Quando eu desvinculei o outro projeto,
+ele funcionou, então tenho que pesquisar sobre isso depois.
+3) Para garantir o funcionamento, no nosso navegador acessamos localhost:8080/curso-jsp e toda a alteração que fizemos dentro do arquivo index.jsp já podia
+ser vista na tela.
+4) Detalhe que escrevemos uma tag que representa código Java:
+<% TUDO QUE VEM ENTRE ESSAS TAGS É CÓDIGO JAVA %>. *Obs.: Toda vez que criarmos uma nova página, é recomendado parar o servidor e dar start de novo, para que ele
+reconheça todas as páginas corretamente.
+
+PASSANDO PARÂMETROS ENTRE DUAS TELAS DIFERENTES:
+
+Criamos o arquivo receber-nome.jsp. Dentro desse arquivo, usamos um objeto request, do tipo HttpServletRequest, e pelo método getParameter("nome"), fazemos
+com que o nome seja salvo dentro dessa request.
+Ao acessarmos a página http://localhost:8080/curso-jsp/receber-nome.jsp, recebemos null porque nenhum nome foi inicializado. Porém se mudarmos a estrutura assim:
+
+http://localhost:8080/curso-jsp/receber-nome.jsp?nome=guilherme leite
+
+Meu nome será printado na tela, respeitando o espaço em branco. Depois de renderizada a página, a url se transforma em:
+
+http://localhost:8080/curso-jsp/receber-nome.jsp?nome=guilherme%20leite
+
+Ou seja, %20 representa um espaço em branco. E se eu quiser concatenar atributos:
+
+http://localhost:8080/curso-jsp/receber-nome.jsp?nome=guilherme leite%idade=20.
+
+E para se trabalhar com duas telas, trabalhamos por meio de FORMULÁRIOS. Um formulário é responsável por agrupar os dados. Dentro de index, criamos um form que
+tem como action="receber-nome.jsp". Isso quer dizer que ao receber dados, esse form será enviado para o arquivo receber-nome.jsp.
+
+Um conceito de ACTION: neste atributo devemos informar o nome da URL para a qual o conteúdo do formulário será submetido, se este atributo não for especificado,
+a URL corrente será usada.
+
+HttpServletRequest e o HttpServletResponse:
+
+Essas duas classes são responsáveis pelas requisições e respostas da web. Por meio delas e de seus métodos é que vamos desenvolver a interatividade com JSP.
+
+Por exemplo, dentro de nosso formulário, quando o usuário preenche nome e idade e aperta em Enviar, ele está mandando uma HttpServletRequest, ou seja,
+é um pedido para que aqueles dados informados sejam processados, gravados (em um DB), editados, consultados, e etc.
+Todas essas ações serão feitas pela Servlet, toda manipulação e edição de dados é responsabilidade da Servlet. E suas últimas ações serão gerar
+uma resposta para a tela, e finalmente, enviar essa resposta por meio de uma HttpServletResponse.
+
+ENTENDENDO O FUNCIONAMENTO DE UMA SERVLET:
+
+Toda Servlet é uma classe Java que fica do lado do servidor, e processa os dados que vêm da tela. A forma de esses dois lados conversarem é por meio da URL.
+
+Existem alguns métodos (ou protocolos HTTP) que trabalham na relação entre uma Servlet e uma página web:
+
+- POST: é usado sempre que um novo usuário for gravado, é o envio de informações inéditas para uma Servlet.
+- GET: usado para consultas, para recuperação de dados.
+- PUT: usado para atualizar/editar um registro já existente.
+- DELETE: usado para apagar um registro.
+
+Esses métodos coexistem, tanto dentro da Servlet quanto no protocolo HTTP que iremos utilizar.
+
+ERRO 404 E 500 - APRENDENDO COMO CORRIGIR:
+
+Várias podem ser as causas de um erro desses. Durante a aula 10 do módulo 22, o Alex passa algumas dessas causas e o que fazer para consertar.
+Eles são alertas do sistema indicando que algum recurso não está sendo encontrado.
+
+1) Pode ser mapeamento de URL errado dentro da Servlet, ou seja, um caminho que escrevemos manualmente, dentro de uma String, e por isso é gerado um erro.
+Pode ser erro de mapeamento tanto do formulário como da Servlet.
+
+CRIANDO NOSSA PRIMEIRA SERVLET:
+
+Vamos tornar index.jsp em uma tela de login. Para isso, vamos precisar criar nossa Servlet, que será responsável pelo tratamento de dados que serão
+inseridos pelos usuários. Portanto, dentro de src/main/java, criamos o package servlets. Dentro desse package, criamos a ServletLogin:
+BDM no package -> New -> Web -> Servlet. Na tela de Create Servlet, demos o nome de ServletLogin, apertamos em next 2 vezes.
+Na última tela de next, ele mostra a opção de métodos que queremos criar (doPost, doDelete, init, doGet), e isso será explorado mais pra frente.
+
+Foi criada então nossa primeira Servlet. Dependendo da versão do Tomcat, os imports dessa classe serão feitos do package javax.
+Porém, pelo meu Tomcat ser um pouco mais recente, os imports vieram do package jakarta. Essa servlet veio com um construtor público, um serial,
+e os métodos doGet() e doPost().
+
+Em cima do nome da classe está a anotação @WebServlet("/ServletLogin"), e ela que faz com que essa classe seja uma servlet, além de indicar
+entre parênteses a URL da servlet.
+
+Depois disso, dentro do método doPost(), fizemos um sysout para ver se nossa servlet já consegue capturar os dados. Porém, quando demos start no server,
+ele não conseguiu iniciar porque acusou que haviam duas servlets mapeadas para uma URL, o que não é permitido. Para resolver, fomos no arquivo web.xml,
+dentro de src/main/webapp/WEB-INF/lib, e apagamos as seguintes tags:
+
+		  <servlet>
+		    <description></description>
+		    <display-name>ServletLogin</display-name>
+		    <servlet-name>ServletLogin</servlet-name>
+		    <servlet-class>servlets.ServletLogin</servlet-class>
+		  </servlet>
+		  <servlet-mapping>
+		    <servlet-name>ServletLogin</servlet-name>
+		    <url-pattern>/ServletLogin</url-pattern>
+		  </servlet-mapping>
+		  
+Sem elas duas, conseguimos fazer uso de nossa aplicação sem nenhum problema. Não sei se toda servlet criada irá gerar uma tag dentro desse arquivo,
+mas caso aconteça, é bom voltar nesse arquivo e apagar qualquer tag indesejada que tenha sido gerada.
+
+ENTENDENDO A ESTRUTURA DO PROJETO:
+
+Back-End:
+Tudo que é arquivo com extensão java, que estiver salvo dentro de src/main/java é arquivo Java, e é do back-end. E as Servlets podem ser entendidas como Controllers.
+1) connection: Além destes, vamos ter o package connection, que abrigará classes de conexão com DB.
+2) dao: Temos também o package dao, que terá classes de acesso e manipulação de dados no DB.
+3) filter: Teremos também um filter, para interceptar requisições e dar respostas, fazer rotinas entre essas respostas.
+4) model: E por fim, o package model, que abriga os modelos da aplicação.
+
+Front-End:
+Tudo que está dentro de src/main/webapp é do front-end, seja páginas jsp, seja html... Apagamos o receber-nome.jsp, porque não teríamos mais utilidade com esse arquivo,
+ele serviu somente de teste. E dentro de webapp, criamos a pasta principal, que guardará outros arquivos de front-end.
+
+CRIANDO O MODEL DE LOGIN:
+
+Mudamos o index.jsp, onde agora ele recebe inputs de Login e Senha, ao invés de nome e idade. A partir disso, temos que alterar o ServletLogin para capturar os dados
+certos, além de criar uma classe chamada ModelLogin. Essa classe obrigatoriamente precisa implementar Serializable, para ter um SerialID. Esse passo deve ser feito
+em todas as classes de modelo, para que não haja problema de compilação das classes, pois podem existir versões de projetos ou servidores que não funcionem corretamente
+se Serializable não for implementado.
+Dentro de ServletLogin, fizemos todas as implementações de lógica para que os dados capturados no input do usuário sejam atribuídos de maneira correta no
+objeto ModelLogin instanciado. E por fim, fizemos uma simulação, onde atribuímos login e senha como "admin", e se digitarmos isso no form, seremos redirecionados
+para a página principal.jsp.
+
+TRABALHANDO COM FILTERS:
+
+Criamos um filtro de autenticação, que é responsável por interceptar todas as requisições e respostas do projeto e tratar os dados de maneira correta.
+O FilterAutenticacao receberá todas as páginas que vierem da pasta principal. Não receberá o index.jsp porque ele é a página inicial do projeto. Não entendi muito
+o funcionamento, mas o que pude absorver é que o filter vai conseguir capturar qualquer url que for passada, que seja diferente de "/principal/ServletLogin"
+(desde que o usuario = null), e irá redirecionar para ServletLogin, porque essa Servlet que é responsável por autenticar os dados e permitir o login se estiverem corretos.
+
+CRIANDO A CONEXÃO COM O DB:
+
+Assim como no módulo de JDBC, criamos uma conexão com o DB. Dentro do Postgresql, criamos o DB curso-jsp, e fizemos a vinculação deste DB com nossa aplicação.
+Depois de criada a classe SingleConnectionBanco, a qual é responsável por criar essa conexão com o DB, chamamos ela dentro de FilterAutenticacao em 3 momentos
+(lembrando que é necessário criar um objeto Connection dentro do Filter):
+
+1) Chamamos no método init() para que a conexão com o DB seja criada assim que nossa aplicação subir no servidor.
+2) Chamamos connection.close() dentro do método destroy(), ou seja, no momento que nossa aplicação deixar de ser usada pelo usuário, a conexão será fechada.
+3) Chamamos dentro de doFilter() para que caso ocorra algum erro em qualquer transação no DB, possamos dar um rollback() no que foi executado.
+
+CRIANDO A TABELA DE USUÁRIOS NO POSTGRESQL:
+
+1) Dentro do postgres, fomos em Schemas -> public -> create table com o nome de model_login.
+2) Depois de criada, fomos nas colunas dessa tabela, BDM e criamos a primeira coluna, de login. Nas definições, escolhemos o tamanho da tabela e o tipo de dado.
+Ou seja, ao invés de usarmos SQL para criar o nosso DB, criamos com cliques. Assim criamos os campos de login e senha.
+3) Depois disso, fizemos BDM em constraints -> create... -> Unique Constraint com o nome de login_unique, e selecionamos a coluna login para que o login não possa
+ser um dado repetido.
+4) Uma boa prática sugerida é copiar os comandos SQL realizados dentro do DB em um arquivo de texto dentro de um package de SQL em nossa aplicação Java. Para isso,
+criamos o package sqlbanco, e dentro dele, criamos o arquivo de texto sql.
+5) Por fim, inserimos o nosso primeiro registro na tabela do DB, inserindo o login e senha com valores 'admin' e 'admin'. Agora nos resta criar um método de validação,
+para que nossa aplicação possa ler os dados do DB, ver se são o login e senha corretos, e permitir ou não a entrada do usuário.
+
+CRIANDO A CLASSE DAO - Data Access Object:
+
+Vamos criar a classe que terá a responsabilidade de persistir os dados no DB. A classe tem o nome de DAOLoginRepository, e dentro dela, criamos o método
+validarAutenticacao(ModelLogin modelLogin). Ele é responsável por autenticar o usuário, comparando o Login e Senha informados pelo usuário na tela com o Login e Senha
+deste usuário salvos no DB.
+Este método é chamado dentro de ServletLogin:
+1) Foi necessário criar um atributo privado em ServletLogin de DAOLoginRepository, criando uma instância dessa classe.
+2) Mais tarde, onde antes era feita uma verificação "manual", agora basta que chamemos o método validarAutenticacao(), passando o usuário como parâmetro. Ele retornará
+true se os dados forem iguais, ou false se os dados não baterem.
+
+CRIANDO TELA PADRÃO DE ERROS:
+
+Criamos o arquivo erro.jsp dentro de webapp. Nele, colocamos um <h1> para exibir uma mensagem principal de erro. Juntamente disso, colocamos um bloco de código,
+dentro do catch, que teria as seguintes funções:
+
+1) RequestDispatcher irá redirecionar para a página erro.jsp;
+2) O método setAttribute guarda 2 parâmetros: a) O parâmetro que irá aparecer na página jsp, no formato de String; b) O conteúdo da String quer será printada por meio
+desse objeto;
+3) Finalmente, o redirecionamento da página por meio do método forward().
+
+Esse bloco de código foi implementado dentro dos blocos de catch, tanto em ServletLogin, quanto em FilterAutenticacao.
+
+CRIANDO TELA DE LOGIN COM BOOTSTRAP:
+
+Pesquisamos no Google por "Bootstrap 5", que era a versão atual. Entramos no site, e fomos em "get started". Ali, tivemos acesso a algumas configurações dentro do HTML,
+como <meta> e alguns <link>, como o link do CSS do bootstrap. Toda essa estilização será salva, a princípio, em index.jsp.
+Adicionamos lang=en, responsividade por meio da tag de viewport, link do CSS, e antes do fechamento de <body>, adicionamos um <srcipt> que é a estilização de tudo que
+for dinâmico na página.
+Depois de salvo o index.jsp, já percebemos algumas mudanças de estilização. Porém, ainda podemos melhorar mais, e para isso, continuamos a navegação nas documentações
+do site do bootstrap. Neste link https://getbootstrap.com/docs/5.0/getting-started/introduction/ nós temos acesso a uma série de documentações e estilizações. Fomos na
+aba de Forms -> Layout, e ali existem vários exemplos de estilizações de formulários. Para aplicar no nosso, basta copiar a class usada naquela tag e colar no nosso.
+Por exemplo, inicialmente, nós tínhamos montado o nosso form separando os campos dentro de tabelas e colunas, com as tags <table> <td> e <tr>. Agora, com o bootstrap,
+adicionamos (class="row g-3") no form, apagamos todas as tables, e para os elementos separados pelas tables, criamos <div> e adicionamos class="col-md-6".
+A dica é sempre observar como está no site do bootstrap e tentar deixar igual no seu código.
+
+VALIDANDO CAMPOS COM BOOTSTRAP:
+
+Fomos em Forms -> Validation, e adicionamos mais uma class para o form, além de colocarmos required para os campos. Ou seja, se os campos estiverem vazios, o próprio
+bootstrap vai impedir que seja feita uma requisição para o backend, e vai mostrar que os campos são de preechimento obrigatório.
+Por fim, adicionamos mais um <script>, que traz uma função em JS que vai impedir do formulário ser enviado enquanto não houver dados preenchidos.
+
+*OBS.: DIFERENÇAS ENTRE OS MÉTODOS doGet() e doPost():
+
+Quando eu criei a ServletLogin, anotei nos métodos que vieram com ela o seguinte: doGet() recebe os dados pela URL em parâmetros. e o doPost Recebe os dados enviados por um
+formulário. Mas o que isso realmente difere?
+Em index.jsp, definimos no action do form o method="post". Ou seja, quando eu envio o form, ele executa tudo que está dentro do método doPost(). Mas em alguns testes
+nas aulas, nós tentamos acessar algumas URLs pela barra de navegação do browser, e por padrão, isso utiliza o método get, e executa tudo que está dentro do método doGet()
+da nossa ServletLogin.
+Como esse método se encontrava vazio, em algumas ocasiões isso retonava uma página em branco. Neste momento, em nossa aplicação, não estamos usando a url para passar
+nenhuma informação. Portanto, pelo menos por agora, dentro do método doGet(), chamaremos o método doPost(), o qual faz as verificações construídas até agora na nossa
+aplicação.
+
+O QUE SÃO DASHBOARD E TEMPLATE:
+
+Template é um padrão a ser seguido da estrutura da página. Um dos mais comuns é o Dashboard Bootstrap. Outro citado na aula é o Dashboard Materialize.
+Esses Templates (Dashboards) são estruturas visuais e estilizadas prontas, nas quais somente temos o trabalhos de implementar nossa página web em cima deles.
+Para instalar um Dashboard, o Alex já deixou disponível na sua aba de Downloads. Muitos Dashboards são pagos, mas existem alguns gratuitos. Baixando o zip de um Dashboard,
+basta extrair e ir na pasta "assets", pois nela é onde se encontra todo o código fonte.
+
+INSTALAÇÃO DASHBOARD E USO DE INCLUDES (Aula 26):
+
+No arquivo do Alex haviam 3 Templates diferentes. No nosso projeto, iremo utilizar o arquivo com nome de mega-able-lite. Quando extraímos ele, temos uma série de arquivos
+HTML que são somente de exemplo para vermos como a página fica. O que realmente importa é a pasta "assets". Selecionamos essa pasta, copiamos, e a colamos dentro de webapp.
+A pasta "assets" guarda arquivos de css, js, imagens, ícones e etc.
+
+E para adicionar a página web na nossa aplicação, faremos uma adição sumária, e depois filtraremos o que vamos realmente usar e o que pode ser descartado. Portanto,
+copiamos todo o arquivo index.html de mega-able-lite, e colocamos todo esse código dentro de "principal.jsp".
+Assim, quando fizermos login, entraremos dentro dessa página pronta.
+
+Como dito, vamos entender toda a estrutura do arquivo para remover as linhas que não iremos usar em nossa página. O primeiro passo é mudar informações no HTML, para que
+ele comece a fazer sentido para o nosso projeto. Começando pelo <head>, mudamos informações e apagamos linhas desnecessárias. Após isso, precisamos tranformar todo este
+cabeçalho em um template, pois ele será exibido em quase todas as páginas de nossa página web, e não queremos ficar no copia e cola, pois isso gera repetição de código
+e dificuldade de manutenção.
+
+Para isso criar este template, vamos trabalhar com um include JSP. Dentro da pasta principal, fazemos um novo arquivo chamado head.jsp. Vamos recortar o cabeçalho pronto
+que está dentro de principal.jsp, e vamos colar este conteúdo dentro de head.jsp. Agora, dentro de principal.jsp, não vamos contruir uma tag <head>, mas vamos fazer
+o include por meio de:
+ 
+<jsp:include page="head.jsp"></jsp:include>
+
+Ou seja, ele incluiu o head construído dentro de head.jsp. Qualquer página da minha aplicação que precisar desse cabeçalho pode incluí-lo dessa maneira.
+A partir disso, fomos "quebrando" a página html em blocos menores (o page-header, a navbar do menu principal, e várias outros fragmentos). E por fim, deixamos o meio
+da página vazio, poi ali entrarão algumas coisas do nosso sistema.
+
+CRIANDO O LOGOUT E ENCERRAMENTO DO USUÁRIO NO SISTEMA:
+
+Aproveitamos que o Dashboard que baixamos e incluímos no projeto já possuía dois botões de logout, e vamos fazer uso deles. Dentro do Eclipse, fomos em Search -> File...
+e procuramos pela palavra Logout dentro de todos os arquivos com extensão .jsp. Dessa forma, ele mostrou as duas ocorrências dentro das páginas jsp.
+Nessas ocorrências, aquele link (href) redireciona para uma página html que veio de exemplo no nosso dashboard. Vamos então encaminhá-la para a nossa ServletLogin,
+que será responsável por efetuar o logout.
+*Lembrando que um href dentro de um HTML chama o método doGet da nossa Servlet. Mudamos então o href, e agora dentro dele, será o caminho "ServletLogin?acao=logout".
+Estamos aproveitando que o href faz uso do método get (ao invés de post) e passando um parâmetro dentro da URL (após o ?). Agora, faremos a implementação de logout.
+
+CARREGANDO A TELA DO USUÁRIO LOGADO:
+
+Vamos personalizar a tela de forma dinâmica, para que exiba o nome daquele usuário, ao invés de um nome estático. Fizemos o mesmo passo acima de procurar as ocorrências,
+e procuramos as vezes que John Doe tinha aparecido (nome genérico que estava na nossa aplicação). Como já havia um tratamento na nossa Servlet, exibindo o nome do usuário,
+bastou que fizesse um jeito de exibir na tela o nome do usuário: em todas as ocorrências de John Doe, trocamos por <%= session.getAttribute("usuario") %>.
+
+CRIANDO A PÁGINA DO USUÁRIO LOGADO:
+
+Passamos o mouse em cima do link de Form Components, e vimos que seríamos direcionados para o arquivo form-elements-component (dentro da pasta do template que baixamos).
+Queremos fazer uso de um form simplificado, então abrimos o documento citado acima com o notepad (ele é um HTML) e pesquisamos por Simple Input.
+Vamos criar então o form de cadastro. Dentro de principal, fizemos um copy/paste de principal-page-base.jsp, pois ela é a página base que vamos modificar em cada página
+de nossa aplicação.
+Fizemos o redirecionamento para a página usuario.jsp, pois é ela que vai guardar o form de usuário. Mas nesse processo se perdeu o CSS e isto porque, se inspecionamos
+a página, principalmente no <head>, descobrimos que o caminho do CSS está errado.
+O path está http://localhost:8080/curso-jsp/principal/assets/pages/waves/css/waves.min.css, porém, para acessar a pasta de assets, deve ser somente curso-jsp/assets...
+sem o principal/.
+Portanto, temos que ir no <head> de nossa aplicação, e mudar as configurações necessárias para que independente se o nome (contexto) do projeto mudar, ele consiga manter
+o acesso a essas páginas. Pegamos por exemplo o link de icon:
+
+<link rel="icon" href="assets/images/favicon.ico" type="image/x-icon">
+
+Para que ele fique de maneira genérica, fazemos:
+
+<link rel="icon" href="<%= request.getContextPath() %>/assets/images/favicon.ico" type="image/x-icon">
+
+Ou seja, com a adição da barra, além desse código em Java, ele ignora a pasta principal na url, e sempre vai saber o nome do projeto. Substituímos assets por
+<%= request.getContextPath() %>/assets em todas as ocorrências no <head>, e também no javascriptfile, no navbar, no navbarmainmenu.
+Ou seja, em todos os lugares da aplicação que havia a presença de assets, foi substituído pelo path acima.
+E dessa forma o CSS voltou a funcionar em todas as páginas. Depois desse ajuste do CSS, vamos implementar o form na página usuario.jsp. Pegamos o Simple Input
+do form-component, e vamos trabalha-lo dentro de usuario.jsp.
+
+CRIANDO CADASTRO DE USUÁRIO:
+
+Depois de muito ajustar o form de novo usuário dentro de usuario.jsp, criamos um form no qual iremos informar o nome, email, login e senha (portanto, nosso
+ModelLogin ganhou mais alguns atributos), e a partir deste preenchimento, quando enviarmos esse form, o action dele irá direcionar para ServletUsuarioController,
+uma nova servlet que criamos reponsável pela manipulação de novos usuários.
+O nosso form tem botões, os quais servirão para manipular usuários no DB. Inicialmente, testamos o funcionamento da Servlet, e depois vamos implementar toda a lógica do DB.
+Para isso, dentro de ServletUsuarioController, capturamos os dados passados na tela por meio de request.getParameter(). Depois, settamos estes dados para os
+atributos da instância de ModelLogin, ou seja, os dados capturados na tela foram atribuídos a um novo usuário (nova instância de ModelLogin).
+Por fim, fizemos um redirecionamento de teste, para que quando o usuário fosse gravado, a aplicação nos levasse para a url passada dentro de RequestDispatcher
+(no caso, a mesma url do form).
+Quando isso aconteceu, os dados sumiram do preenchimento da tela, mas queremos manter estes campos preenchidos, e veremos isso adiante.
+
+MANTENDO OS DADOS NA TELA:
+
+Para manter o form preenchido, mesmo que a aplicação nos redirecione pra outra página, basta que na Servlet nós criemos um atributo por meio de:
+
+request.setAttribute("modelLogin", modelLogin);
+
+Ou seja, ela salva todas as informações do usuário dentro de "modelLogin". Agora, para exibir na tela, basta que dentro de cada input do nosso form, nós declaremos:
+
+value="${modelLogin.id}
+
+Este é para o caso da exibição do id. Para exibir o nome, basta substituir id por nome. Assim, ele exibe os dados que estavam salvos dentro da cache do navegador.
+
+ADICIONANDO CAMPOS NA TABLE DE USUÁRIO, SALVANDO E CONSULTANDO USUÁRIO NO BANCO DE DADOS:
+
+Fizemos alterações no DB, na table model_login, adicionando as colunas de nome, email e id. E tornamos todas as colunas not null. Agora basta construir os comandos sql
+na nossa aplicação Java para manipularmos os usuários dentro do DB.
+Para isso, criamos a classe DAOUsuarioRepository, que será responsável por manipular o DB. Com o método gravarUsuario(Usuario) fizemos a instrução SQL, settamos
+os valores de atributos do ModelLogin Usuario, fizemos a execução da SQL e fizemos o commit. Lembrando que todos os métodos dessa classe terão a declaração
+"throws Exception", pois todos eles precisam de um tratamento de exceções, mas quem vai fazer este tratamento é a Servlet.
+
+Agora, declaramos uma instância de DAOUsuarioRepository dentro de ServletUsuarioController. Isto porque esta é a Servlet responsável pela manipulação de usuários.
+Dentro do método doPost():
+1) Recuperamos os dados passado na tela pelo usuário por meio de request.getParameter();
+2) Criamos um novo usuário por meio de "new ModelLogin()";
+3) Settamos cada um dos valores vindos da tela para os atributos deste usuário criado no passo #2;
+4) Chamamos o método gravarUsuario() por meio de daoUsuarioRepository, passando o usuário criado no passo #2;
+5) Printamos uma mensagem de sucesso, e redirecionamos para a página de usuário logado;
+6) No caso de algum erro, capturamos a exceção e redirecionamos para a página de erro.
+
+Lembrando que para exibir a mensagem de sucesso (passo #5) na tela, fomos em usuario.jsp e fizemos a tag <span>${msg}</span> logo abaixo do form, para exibir
+a mensagem de gravação.
+
+Além disso, criamos o método consultarUsuario(login), o qual recebe o login somente como um identificador daquele usuário específico. Dentro dele fizemos um SELECT no DB,
+e settamos as informações recebidas do DB para um usuário (modelLogin). Esse método retorna o usuário criado e com os dados recebidos do DB. Por isso, chamamos este
+método dentro de gravarUsuario(Usuario), para que assim que for gravado um novo usuário no DB, já retornemos na tela essas informações.
+
+VALIDAÇÃO DE LOGIN E ATUALIZAÇÃO NO DB:
+
+Como o login é uma constraint unique no nosso DB, isso significa que não podem ser cadastrados dois usuários com o mesmo login. Portanto, vamos implementar uma forma de
+validar o login e impedir que seja cadastrado um novo usuário com login já existente. Criamos o método validarLogin(String login) dentro de DAOUsuarioRepository. Isto
+porque nossa validação já começa com um SELECT dentro do DB. Usamos um SELECT COUNT(1), que merece uma explicação antes de prosseguirmos:
+
+*****
+O select count verifica o número de linhas não nulas dentro do count que você quer fazer! Por exemplo, se você tem uma table com uma coluna "nome", e dentro dessa coluna
+existir algum nome nulo, ele não entrará nesse count. Digamos que numa coluna nome com 200 registros, 2 deles sejam nulos. O count será:
+
+select count(nome) from Produtos; 
+> 198
+
+select count(\*) from Produtos; 
+> 200
+
+Ou seja, usando o \*, você conta todos os registros, independente de serem nulos.
+
+O count(1) seria uma alternativa ao count(algum_campo) pois você teria certeza que nunca seria nulo, e que não precisaria ler o campo. A função COUNT retorna o número de
+linhas para as quais a expressão ache um valor não nulo. Desta forma, COUNT(1) pode ser também COUNT(*) ou ainda COUNT(login), no nosso exemplo.
+Por último, COUNT(1) > 0 retornará valores true ou false.
+*****
+
+Depois disso, fizemos a validação dentro de DAOUsuarioRepository. Logo depois, dentro de ServletUsuarioController(), antes da gravação do usuário no DB, fazemos a seguinte
+verificação: Se o login já existe no DB, e se o ID == null (ou seja, é a tentativa de cadastramento de um novo usuário), não pode ser pemitido que este usuário seja gravado
+no DB, e é mostrada a mensagem ao usuário de que ele deve trocar o seu login para pode ser cadastrado.
+
+Porém, pode ser que o ID != null, ou seja, o usuário já está cadastrado e quer atualizar os seus dados. Vamos então modificar o método gravarUsuario() dentro de
+DAOUsuarioRepository.
+Primeiro, vamos em ModelLogin, e implementar uma condição em cima do atributo ID, para que o próprio objeto de usuário nos informe se ele é novo ou não.
+
+public boolean isNovo() {
+		
+		if (this.id == null) {
+			return true; /*Insere novo usuário*/
+		} else if (this.id != null && this.id > 0) {
+			return false; /*Atualiza usuário existente*/
+		}
+		
+		return id == null;
+	}
+
+Se o id == null, o usuário é novo, e retorna true. Senão, o usuário não é novo e retorna false. A partir disso, dentro do método gravarUsuario(), só iremos gravar o
+usuário se isNovo() for true. Senão, rodaremos um script de UPDATE, ao invés de INSERT no DB.
+
+MELHORANDO O LAYOUT DO FORM:
+
+Primeiro de tudo, atribuímos um id para o form em usuario.jsp, para que fique mais fácil manipula-lo. Neste caso, id="formUser". Depois disso, no botão "Novo", que já estava
+na página, colocamos onclick="limparForm();". Essa função que será responsável por limpar o form. Por fim, perto do final do body da página, implementamos o script com a
+função limparForm(). Assim, quando o botão Novo for apertado, todos os dados que estavam preenchidos no form serão zerados.
+Depois disso, deixamos o texto dos inputs de nosso form de maneira estática e deixamos a cor mais escura para melhorar a visibilidade.
+
+CRIANDO O MÉTODO DE DELETE COM POST:
+
+Normalmente o método doPost() servirá para salvar e atualizar, enquanto que o doGet() é usado para consultar e deletar. Desta forma, começamos a implementação do delete no
+doGet() de ServletUsuarioController. Nele, pegamos os parâmetros passados em tela (request.getParameter()), e fazemos verificações que vão bater diretamente com a função JS
+criada abaixo, o criarDelete().
+
+Mudamos o tipo do <button> Excluir para type="button". Isto porque, em um formulário, se não for explicitado, o botão padrão será submit, e isso dispara o envio do
+formulário. Neste caso, queremos somente excluir o usuário da base de dados sem precisar enviar o formulário. Além disso, esse botão recebeu a function criarDelete(), uma
+function JS que definirá o comportamento do botão.
+
+E para criarmos uma confirmação antes de deletar um usuário, bastou envolvermos todo o código da function criarDelete() em um if(confirm(string)). Este if chama o confirm,
+que recebe a String daquilo que queremos chamar a atenção do usuário (nesse caso, alerta-lo que seu usuário será deletado). Ele exibirá uma tela na página web, e se o usuário
+apertar ok, o if() terá valor true e deletará os dados, senão, não irá fazer nada.
+
+CRIANDO O MÉTODO DE DELETE COM AJAX:
+
+Para utilizarmos o ajax, fazemos uso do jQuery, um framework JS que disponibiliza essa biblioteca. Ele vem com a estrutura <script src="jQuery.js"></script>, ou parecidas.
+
+Algumas observações sobre o jQuery: ele tem a versão não compactada (usada para ambiente de desenvolvimento) e a compactada (usada para ambiente de produção). A não
+compactada, no site do jQuery para download, vem em um formato esquisito, de uma só linha. Para usa-la, você copia o código, cola esse código no VSCode, por exemplo, e salva
+esse arquivo de texto como JS. No seu HTML, você informa o path desse arquivo na tag <script> e assim você já pode usa-lo.
+Para usar o jQuery, sempre iniciaremos o nosso código com $... neste caso, como vamos trabalhar com ajax, a estrutura é $.ajax().
+
+Primeiro que nesse caso não há um envio de formulário, e portanto não há um redirecionamento de página. Portanto, há uma economia de recursos, uma vez que não haverá
+carregamento de novas telas e etc.
+
+Para que funcione, criamos a função criarDeleteComAjax() e vinculamos ela ao botão de Excluir, no lugar de criarDelete(), dentro de usuario.jsp.
+Agora, dentro de ServletUsuarioController, criamos a implementação do ajax. Dentro do método doGet(), fizemos um else if(), pois o primeiro if() do método excluirá usuários
+trabalhando com o requestDispatcher() normalmente, e esse else if() usará ajax. Como dito, o ajax não vai redirecionar a página, somente irá exibir a mensagem de exclusão.
+
+E por fim, dentro de criarDeleteComAjax(), atribuímos a action do form e outras atribuições, e dentro de $.ajax(), definimos o method como get, passamos os atributos na url,
+e pegamos a resposta do nosso backend e exibimos na tela. Com isso, o usuário foi deletado e exibimos o resultado na tela, sem o redirecionamento de página.
+
+CRIANDO MODAL COM BOOTSTRAP:
+
+Modal é uma tela, parecida com a tela de alerts() em JS, porém melhor trabalhada visualmente. Fizemos nessa primeira tela um modal de pesquisa de usuário. Ali vamos organizar
+a exibição dos dados do usuário.
+
+Primeiro de tudo, consultamos a nossa versão do Bootstrap: BDM na página -> Inspecionar Elemento -> <head> -> procure por bootstrap -> abra o link em nova aba. Ali,
+descobrimos que estamos usando a versão 4.0.0.
+Com isso, pesquisamos no Google "modal bootstrap 4.0", para que haja compatibilidade. Fomos no primeiro link, da própria mantenedora do bootstrap. Pegamos o <button> e
+adicionamos depois do button de Excluir, em usuario.jsp. E colocamos toda a estrutura do modal antes da tag de <script> da página.
+O modal possui uma estrutura parecida com um HTML, com head, body, footer... Portanto, devemos seguir essa separação. Por exemplo, queremos montar um campo de digitação e
+pesquisa dentro do modal. Para isso, pesquisamos por form bootstrap 4, e na página, buscamos por um campo que trouxesse um input com um botão do lado. Adicionamos essa div
+dentro do body do modalUsuario, e colocamos o botão Buscar ao lado do input.
+Logo depois, ainda no site do bootstrap, pesquisamos por table, pois queremos trazer os dados dessa busca de usuário dentro de uma tabela. Limpamos todo o body da tabela,
+pois buscaremos os dados do DB utilizando JS.
+
+Agora, começando a dar vida na tela:
+1) No botão de Buscar, definimos onclick="buscarUsuario()", que é a função que buscará um usuário no DB. Fizemos uma validação para que o nome só seja buscado se houver nome
+preenchido no input, ele não buscará nomes vazios.
+2) Criamos a função de busca com ajax, uma vez que queremos receber os dados na mesma tela, sem precisar de redirecionamentos e etc. De certa forma, devemos trabalhar com
+ajax, uma vez que se houver redirecionamento, o modal irá sumir da nossa tela.
+3) Criamos o método consultarUsuarioList(String nome), o qual buscará no Banco de Dados o nome passado como parâmetro. Detalhe que, na nossa SQL statement, usamos 'like' ao
+invés de '='. Isto porque, queremos achar nomes que contenham a String passada como parâmetro. Ex.: "gu" pode ser guilherme ou gustavo, e os dois serão retornados na
+pesquisa. Com esse SQL, retornaremos com esse método todas as informações dos usuários, exceto a senha.
+4) Dentro de ServletUsuarioController, no método doGet() (que foi definido como método usado na function do passo 2), fizemos um tratamento para que possamos resgatar os
+dados da tela. Depois disso, queremos retornar o resultado por meio de um JSON, e para isso, baixamos a dependência JACKSON JSON MAVEN, no google. Adicionamos ao projeto
+colocando sua <dependency> dentro de pom.xml. (Detalhe que baixamos uma dependency que não funcionou inicialmente, a certa é jackson databind).
+5) Com essa dependency, tivemos acesso à classe ObjectMapper, que segundo a documentação, é uma classe que "provê funcionalidades para leitura e escrita de JSON, recebendo
+objetos Java, fazendo as devidas conversões.
+6) Os dados recebidos na busca dentro do DB retonam uma lista de usuários. Com o mapper (instância de ObjectMapper), chamamos o método writeValueAsString(List usuarios). Ou
+seja, ele recebe a lista de usuários retornada do DB e a transforma em uma String. Uma lista, quando transformada em String, terá o formato de um JSON.
+7) Por fim, a response agora pode escrever essa list como uma String, e mandar essa resposta para a tela. Os próximos passos virão dentro do function JS do passo 2, que será
+responsável por formatar essa lista e mostra-la de forma correta dentro da tela.
