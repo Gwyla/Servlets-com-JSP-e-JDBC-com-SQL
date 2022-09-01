@@ -449,6 +449,7 @@ Logo depois, ainda no site do bootstrap, pesquisamos por table, pois queremos tr
 pois buscaremos os dados do DB utilizando JS.
 
 Agora, começando a dar vida na tela:
+
 1) No botão de Buscar, definimos onclick="buscarUsuario()", que é a função que buscará um usuário no DB. Fizemos uma validação para que o nome só seja buscado se houver nome
 preenchido no input, ele não buscará nomes vazios.
 2) Criamos a função de busca com ajax, uma vez que queremos receber os dados na mesma tela, sem precisar de redirecionamentos e etc. De certa forma, devemos trabalhar com
@@ -462,7 +463,13 @@ colocando sua <dependency> dentro de pom.xml. (Detalhe que baixamos uma dependen
 5) Com essa dependency, tivemos acesso à classe ObjectMapper, que segundo a documentação, é uma classe que "provê funcionalidades para leitura e escrita de JSON, recebendo
 objetos Java, fazendo as devidas conversões.
 6) Os dados recebidos na busca dentro do DB retonam uma lista de usuários. Com o mapper (instância de ObjectMapper), chamamos o método writeValueAsString(List usuarios). Ou
-seja, ele recebe a lista de usuários retornada do DB e a transforma em uma String. Uma lista, quando transformada em String, terá o formato de um JSON.
+seja, ele recebe a lista de usuários retornada do DB e a transforma em uma String.
 7) Por fim, a response agora pode escrever essa list como uma String, e mandar essa resposta para a tela. Os próximos passos virão dentro do function JS do passo 2, que será
 responsável por formatar essa lista e mostra-la de forma correta dentro da tela.
 
+Agora, voltaremos a trabalhar com a table que veio no modal que criamos. Primeiro de tudo, vamos identifica-la em usuario.jsp atribuindo um id a ela.
+Depois disso, sabendo que recebemos uma String como response, precisamos transforma-la para JSON, para melhor organização na tela. Fizemos isso por meio de uma funcionalidade
+JS dentro da função buscarUsuario().
+Depois disso, removemos todas as linhas da tabela (mais por garantia), e varremos a o JSON com um for. Sabendo que este era um JSON de usuários, para cada coluna na tabela,
+settamos um valor, como id na coluna 1, nome na coluna 2 e etc... Além disso, adicionamos um botão que será responsável por exibir o restantes das informações dos usuários
+quando for apertado. 
