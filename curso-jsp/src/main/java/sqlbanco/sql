@@ -1,4 +1,5 @@
 
+-----------------------------------------------------------------------------------------
 CREATE DATABASE "curso-jsp"
     WITH
     OWNER = postgres
@@ -7,8 +8,10 @@ CREATE DATABASE "curso-jsp"
     LC_CTYPE = 'Portuguese_Brazil.1252'
     TABLESPACE = pg_default
     CONNECTION LIMIT = -1;
+-----------------------------------------------------------------------------------------
     
     
+-----------------------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.model_login
 (
     login character varying(200) COLLATE pg_catalog."default",
@@ -17,7 +20,9 @@ CREATE TABLE IF NOT EXISTS public.model_login
 )
 
 TABLESPACE pg_default;
+-----------------------------------------------------------------------------------------
 
+-----------------------------------------------------------------------------------------
 ALTER TABLE IF EXISTS public.model_login
     OWNER to postgres;
     
@@ -25,21 +30,28 @@ ALTER TABLE IF EXISTS public.model_login
 INSERT INTO public.model_login(
 	login, senha)
 	VALUES ('admin', 'admin');
+-----------------------------------------------------------------------------------------
 	
+-----------------------------------------------------------------------------------------
 alter table model_login
 add id serial primary key;
+-----------------------------------------------------------------------------------------
 
+-----------------------------------------------------------------------------------------
 alter table model_login
 add nome varchar(300),
 add email varchar(300);
 
 update model_login set nome = '', email = '';
+-----------------------------------------------------------------------------------------
 
 alter table model_login alter column email set not null;
 alter table model_login alter column nome set not null;
 alter table model_login alter column senha set not null;
 alter table model_login alter column login set not null;
+-----------------------------------------------------------------------------------------
 
+-----------------------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.model_login
 (
     login character varying(200) COLLATE pg_catalog."default" NOT NULL,
@@ -52,6 +64,30 @@ CREATE TABLE IF NOT EXISTS public.model_login
 )
 
 TABLESPACE pg_default;
+-----------------------------------------------------------------------------------------
 
+-----------------------------------------------------------------------------------------
 ALTER TABLE IF EXISTS public.model_login
     OWNER to postgres;
+    
+    
+alter table model_login add column useradmin boolean default false not null;
+-----------------------------------------------------------------------------------------
+
+-----------------------------------------------------------------------------------------
+alter table model_login add column usuario_id bigint not null default 1;
+alter table model_login add constraint usuario_fk foreign key (usuario_id) references model_login(id);
+-----------------------------------------------------------------------------------------
+
+-----------------------------------------------------------------------------------------
+alter table model_login add column perfil varchar(200);
+alter table model_login add column sexo varchar(200);
+
+update model_login set perfil = 'AUXILIAR' where perfil is null;
+update model_login set sexo = 'MASCULINO' where sexo is null;
+-----------------------------------------------------------------------------------------
+
+-----------------------------------------------------------------------------------------
+alter table model_login add column fotouser text;
+alter table model_login add column extensaofotouser varchar(10);
+-----------------------------------------------------------------------------------------

@@ -11,12 +11,14 @@ import model.ModelLogin;
 import java.io.IOException;
 
 import dao.DAOLoginRepository;
+import dao.DAOUsuarioRepository;
 
 @WebServlet(urlPatterns = {"/principal/ServletLogin","/ServletLogin"}) /*Mapeamento de URL que vem da tela.*/
 public class ServletLogin extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
 	private DAOLoginRepository daoLoginRepository = new DAOLoginRepository();
+	private DAOUsuarioRepository daoUsuarioRepository = new DAOUsuarioRepository();
 
 	public ServletLogin() {
 	}
@@ -55,8 +57,11 @@ public class ServletLogin extends HttpServlet {
 				/*SIMULAÇÃO DE LOGIN*/
 				if (daoLoginRepository.validarAutenticacao(modelLogin)) {
 					
+					modelLogin = daoUsuarioRepository.consultarUsuarioLogado(login);
+					
 					request.getSession().setAttribute("usuario", modelLogin.getLogin());
 					/*Ele pega a sessão do request e setta o objeto modelLogin para dentro da String usuario.*/
+					request.getSession().setAttribute("perfil", modelLogin.getPerfil());
 					
 					/*Em index.jsp, eu não estava entendendo o input referente a url. Porém, aqui
 					 fizemos uma verificação que faz sentido: no momento em que fazemos login,
@@ -82,7 +87,8 @@ public class ServletLogin extends HttpServlet {
 				request.setAttribute("msg", "Informe o login e senha corretamente!");
 				redirecionar.forward(request, response);
 			}
-			
+		/*Entende-se portanto que só haverá exceções se houver erros no backend, como conexão com DB e etc, 
+		 * enquanto que podemos cair nos elses acima por erros do usuário.*/
 		} catch (Exception e) {
 			e.printStackTrace();
 			RequestDispatcher redirecionar = request.getRequestDispatcher("erro.jsp");

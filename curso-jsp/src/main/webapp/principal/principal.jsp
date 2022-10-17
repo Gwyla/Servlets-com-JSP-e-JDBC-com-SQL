@@ -36,7 +36,8 @@
                                     <div class="page-body">
                                         <div class="row">
                                             <!-- task, page, download counter  start -->
-                                            <h1>Conteúdo das páginas do Sistema</h1>
+                                            <h1>Seja bem-vindo. Este é um sistema de cadastro de usuários!</h1>
+                                            <p>Somente o Admin pode cadastrar usuários. Para cadastrar um usuário, navegue em Components -> Usuário.</p>
                                             <!--  project and team member end -->
                                         </div>
                                     </div>

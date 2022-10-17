@@ -2,9 +2,9 @@ Módulo 22 - Servlets com JSP e JDBC com SQL
 
 JavaServer Pages - JSP:
 
-É uma tecnologia utilizada para criar aplicações web, assim como um Servlet. Ele pode ser pensado como uma extensão para Servlet.
-Uma página JSP consiste em tags HTML + tags JSP. São mais fáceis de manter do que um Servlet, porque podemos separar o design e o desenvolvimento.
-O JSP passou por grandes evoluções até alcançar a arquitetura MVC.
+É uma tecnologia utilizada para criar aplicações web, assim como uma Servlet. Ele pode ser pensado como uma extensão para Servlet.
+Uma página JSP consiste em tags HTML + tags JSP. São mais fáceis de manter do que uma Servlet, porque podemos separar o design e o desenvolvimento.
+O JSP passou por grandes evoluções até alcançar a arquitetura MVC. TODA Servlet vai estender (herdar) de HttpServlet. 
 
 Vantagens JSP sobre Servlets:
 
@@ -14,7 +14,8 @@ c) Desenvolvimento rápido, não sendo necessário recompilar e reimplantar todo o 
 d) Menos código que Servlet.
 
 Ciclo de vida de uma página JSP:
-1) O usuário acessa a página web feita em JSP. Essa página leva a um JSP Translator, que faz a conversa entre JSP e HTML.
+1) O usuário acessa a página web feita em JSP. Essa página leva a um JSP Translator, que faz a conversa entre JSP e HTML. (Dentro de web.xml, definimos o único <welcome-file>
+como index.jsp. Assim, quando acessamos localhost:8080/curso-jsp, automaticamente caímos em index.jsp, que é a página de login do sistema).
 2) Nessa conversa é necessário passar por um Servlet (.javafile), que será compilado, e que a cada momento essa camadas vão ficando mais internas,
 passando por um Class file, JRE, Servlet Object, e por fim um Buffer (dynamic content) que retornará ao usuário toda a interação feita dentro da página.
 
@@ -54,7 +55,7 @@ http://localhost:8080/curso-jsp/receber-nome.jsp?nome=guilherme%20leite
 
 Ou seja, %20 representa um espaço em branco. E se eu quiser concatenar atributos:
 
-http://localhost:8080/curso-jsp/receber-nome.jsp?nome=guilherme leite%idade=20.
+http://localhost:8080/curso-jsp/receber-nome.jsp?nome=guilherme leite&idade=20.
 
 E para se trabalhar com duas telas, trabalhamos por meio de FORMULÁRIOS. Um formulário é responsável por agrupar os dados. Dentro de index, criamos um form que
 tem como action="receber-nome.jsp". Isso quer dizer que ao receber dados, esse form será enviado para o arquivo receber-nome.jsp.
@@ -141,7 +142,7 @@ CRIANDO O MODEL DE LOGIN:
 
 Mudamos o index.jsp, onde agora ele recebe inputs de Login e Senha, ao invés de nome e idade. A partir disso, temos que alterar o ServletLogin para capturar os dados
 certos, além de criar uma classe chamada ModelLogin. Essa classe obrigatoriamente precisa implementar Serializable, para ter um SerialID. Esse passo deve ser feito
-em todas as classes de modelo, para que não haja problema de compilação das classes, pois podem existir versões de projetos ou servidores que não funcionem corretamente
+em todas as classes de MODELO, para que não haja problema de compilação das classes, pois podem existir versões de projetos ou servidores que não funcionem corretamente
 se Serializable não for implementado.
 Dentro de ServletLogin, fizemos todas as implementações de lógica para que os dados capturados no input do usuário sejam atribuídos de maneira correta no
 objeto ModelLogin instanciado. E por fim, fizemos uma simulação, onde atribuímos login e senha como "admin", e se digitarmos isso no form, seremos redirecionados
@@ -150,9 +151,40 @@ para a página principal.jsp.
 TRABALHANDO COM FILTERS:
 
 Criamos um filtro de autenticação, que é responsável por interceptar todas as requisições e respostas do projeto e tratar os dados de maneira correta.
-O FilterAutenticacao receberá todas as páginas que vierem da pasta principal. Não receberá o index.jsp porque ele é a página inicial do projeto. Não entendi muito
-o funcionamento, mas o que pude absorver é que o filter vai conseguir capturar qualquer url que for passada, que seja diferente de "/principal/ServletLogin"
-(desde que o usuario = null), e irá redirecionar para ServletLogin, porque essa Servlet que é responsável por autenticar os dados e permitir o login se estiverem corretos.
+Este Filter tem como objetivo impedir o acesso à nossa aplicação de uma maneira diferente de informar o login e senha. Por exemplo, se tentarmos acessar a página principal
+depois do login por meio da url, sem informar os dados no form, isso deve ser impedido, e o usuário deve receber uma mensagem de obrigação de informar login e senha.
+A única forma válida de fazer o login é passar por ServletLogin, e a única forma de isso acontecer é informar os dados CORRETOS na tela, para que seja redirecionado para a
+tela de login. 
+O FilterAutenticacao receberá todas as páginas que vierem da pasta principal. Não receberá o index.jsp porque ele é a página inicial do projeto.
+Um filter serve para atualizar a solicitação (request) e a resposta (response) dos objetos, além manipular informações como do cabeçalho de e para o Servlet. Vale
+ressaltar que os filtros não criam a resposta, eles apenas modificam ou adaptam as solicitações e as respostas. Outras tarefas típicas dos filtros são: autenticação,
+logging, compressão de dados, encriptação de dados, entre outras. Todo filter terá a anotação e o endereço. No nosso caso, ficou @WebFilter(urlPatterns = {"/principal/*"}),
+fazendo com que todas as páginas que vierem dessa pasta obrigatoriamente passarão pelo Filter. Se urlPatterns fosse = ("/*"), todas as requisições e respostas da aplicação
+passariam no filtro, e não somente as req e resp das páginas da pasta principal.
+
+Por padrão, todo Filter terá um construtor público, vai extender de HttpFilter e implementar a interface Filter, além de ter os métodos destroy(), doFilter() e um init()
+(todos os métodos vindos da interface Filter).
+O método doFilter(ServletRequest request, ServletResponse response, FilterChain chain) recebe as requests e passa as responses de e para uma servlet.
+
+E afinal, como o FilterAutenticacao se encaixa entre a request e a response de ServletLogin?
+1) Bom, primeiro de tudo, o método init() do Filter é iniciado, e ele é responsável por criar a conexão com o DB;
+2) Dentro de ServletLogin, os paramêtros login e senha que vieram da tela serão atribuídos a um ModelLogin. Será chamado o método de validação desse ModelLogin, e se tudo
+der certo, esse ModelLogin se torna um usuario por meio de: request.getSession().setAttribute("usuario", modelLogin.getLogin()); (Lembrando que request, nesse caso, é uma
+HttpServletRequest).
+3) O action do form em index.jsp irá redirecionar para a ServletLogin, que fará com que a url se torne principal/principal.jsp, além de redirecionar para essa página.
+4) Porém, antes desse redirecionamento, dentro de FilterAutenticacao acontecem algumas coisas:
+	a) A request lá é somente uma ServletRequest, então transformamos ela em uma HttpServletRequest;
+	b) Pegamos uma session e nela resgatamos o valor de usuario (que será null, já que nenhum dado ainda foi informado em login e senha).
+	c) Fazemos uma verificação, e se algumas coisas não baterem de acordo com o funcionamento desejado da nossa aplicação, direcionamos o usuário para index.jsp,
+	impedindo-o de fazer login, e agora recebendo uma resposta de que deve informar os dados corretamente.
+	d) Se tudo bater de acordo, é chamado chain.doFilter(); Para entender o que acontece aqui, vamos examinar a documentação: Servlet Filters são uma implementação do
+	design pattern Chain of responsibility (cadeia de responsabilidade). Todos os filtros são encadeados (na ordem de sua definição em web.xml). O que chain.doFilter() faz
+	é prosseguir para o próximo elemento na cadeia. O último elemento da cadeia é recurso / servlet alvo. Ou seja, no momento que ele é chamado, redireciona para a
+	ServletLogin.
+5) Se tudo está de acordo, as alterações no DB serão salvas, pois após todas modificações que o filter fizer, ele chama connection.commit();
+6) Se alguma coisa der errado, o filter irá redirecionar para a página de erro.jsp, e dará um rollback() nas alterações do DB;
+7) Por fim, no momento em que a aplicação deixar de ser acessada pelos usuários (ou o servidor for derrubado para manutenção), é chamado o método destroy() no filter, que
+será responsável por fechar a conexão com o DB por meio de connection.close();
 
 CRIANDO A CONEXÃO COM O DB:
 
@@ -472,4 +504,177 @@ Depois disso, sabendo que recebemos uma String como response, precisamos transfo
 JS dentro da função buscarUsuario().
 Depois disso, removemos todas as linhas da tabela (mais por garantia), e varremos a o JSON com um for. Sabendo que este era um JSON de usuários, para cada coluna na tabela,
 settamos um valor, como id na coluna 1, nome na coluna 2 e etc... Além disso, adicionamos um botão que será responsável por exibir o restantes das informações dos usuários
-quando for apertado. 
+quando for apertado.
+
+Por isso, no onclick() daquele button, colocamos a function verEEditar(id), que recebe esse id do usuário e oferece a ele a opção de edita-lo. Depois disso, criamos em
+DAOUsuarioRepository o método consultarUsuarioId(String id), que é o mesmo id passado na function de editar usuário. A parir disso, ele retorna os campos do formulário
+preenchidos com os dados daquele usuário (daquele id) e permite a alteração desses dados pelo método de atualizar, que já existia.
+
+CONFIGURANDO O JSTL PARA CRIAÇÃO DINÂMICA DE CONTEÚDO:
+
+JavaServer Pages Standard Tag Library é um componente do Java EE que adiciona tags JSP para tarefas comuns, como processamento de dados XML, loops e etc. Para adiciona-lo
+ao nosso projeto, colocamos o seguinte código Java: <%@ taglib prefix = "c" uri = "http://java.sun.com/jsp/jstl/core" %> dentro de usuário.jsp, logo no começo desse arquivo.
+Depois disso, baixei 3 dependencies que o Alex deixou disponível na aula, por questões de compatibilidade.
+ASSISTIR DE NOVO A AULA 48, CONFIGURANDO O JSTL
+
+CARREGANDO OS USUÁRIOS EM TABELA COM JSTL:
+
+Fomos dentro de navbarmainmenu.jsp e procuramos pela url <a href="<%=request.getContextPath() %>/principal/usuario.jsp"> e substituímos por
+<a href="<%=request.getContextPath() %>/ServletUsuarioController?acao=listarUser". A partir disso, dentro de doGet() de ServletUsuarioController, fizemos mais uma
+condição onde acao = listarUser, e assim, vamos implementar a forma de mostar a lista de detalhes dos usuários.
+Depois, dentro de DAOUsuarioRepository, criamos um método para carregar todos os usuários.
+
+Com a lista de usuários em mãos, podemos agora exibi-la na tela. Fomos dentro de usuario.jsp e copiamos a table que tínhamos criado para o modal de usuários. Colocamos
+essa table copiada logo abaixo da mensagem (${msg}) que exibimos na tela. No body dessa table, fizemos <c:forEach items="${modelLogins}" var="ml">, onde c é o prefixo de
+chamada das funcionalidades de JSTL, ou seja, essa função forEach é uma funcionalidade trazida por JSTL. Depois, criamos as linhas e colunas e exibimos os resultados, os
+quais foram capturados e atribuídos dentro de ServletUsuarioController por meio de request.setAttribute("modelLogins", modelLogins);
+Por fim, o botão ver tem a função de preencher os campos com os dados do usuário e possibilitar a edição desse usuário, e isso já foi implementado com acao=buscarEditar.
+Portanto, o buttom ficará no seguinte formato:
+
+<td><a class="btn btn-success" href="<%= request.getContextPath() %>/ServletUsuarioController?acao=buscarEditar&id=${ml.id}">Ver</a></td>
+
+Ou seja, deixou de ser um button e agora é uma âncora (link) que direciona para o método de edição.
+Porém, quando eu apertar para ver e editar, a lista de usuários deixa de aparecer porque ela só foi exibida no contexto de acao=listarUser. Se quisermos que seja exibida
+em todos os carregamentos, devemos passar essa lista em cada contexto diferente de acao.
+
+CRIANDO USUÁRIO ADMIN PADRÃO:
+
+Esse usuário é como o Admin do sistema, e seus dados não podem sofrer alteração. Para isso, adicionaremos um campo boolean no DB, para verificar se os usuários são Admin.
+Portanto, criamos uma column com boolean, e esse valor será false como default, e só será true para o user Admin. Sabemos que a única maneira de editar os dados de um User
+é quando obtemos seus dados por meio de um SELECT no DB. Portanto, podemos fazer uma lógica, na qual fazemos um select ... where useradmin is false. Ou seja, retornaremos
+todos os usuários, menos o nosso Admin.
+
+CONTROLANDO OS DADOS POR USUÁRIO LOGADO:
+
+A intenção nesse vídeo foi separar os dados dos usuários, por usuário logado. Primeiro de tudo, vamos adicionar uma coluna no DB que será uma foreign key para a coluna id.
+Fizemos os dois comandos:
+
+alter table model_login add column usuario_id bigint not null default 1;
+
+alter table model_login add constraint usuario_fk foreign key (usuario_id) references model_login(id);
+
+Com isso, id virou uma Primary Key, e usuario_id é sua respectiva Foreign Key. Depois disso, criamos a ServletGenericUtil. Ela é somente uma Classe (a princípio) e não uma
+Servlet. Por enquanto, sua única responsabilidade é definir o método getUserLogado(HttpServletRequest request); este método recebe essa request para trabalhar com uma Session
+dela: ele vai pegar o atributo "usuario" dessa Session (que já foi definido na ServletLogin) e vai consultar este usuário e retornar o id dele (retorna um Long).
+
+ATUALIZAÇÃO: ServletGenericUtil é uma classe que sofre modificações. Como o seu método precisará ser chamado em outra Classe, fiz o seguinte:
+ServletGenericUtil vai extender HttpServlet (ou seja, tem herança dela), e ServletUsuarioController vai extender ServletGenericUtil. Assim, a Servlet consegue ter acesso
+tanto aos métodos de GenericUtil, quanto às funcionalidades de uma HttpServlet.
+
+Agora, temos que modificar alguns métodos do DAOUsuarioRepository, adicionando este Long que recebemos. Mudamos, por exemplo, o método
+gravarUsuario(ModelLogin usuario, Long usuarioLogado). Antes esse método só recebia o ModelLogin, agora recebe o usuarioLogado.
+Vários outros métodos foram modificados, agora recebendo o usuario_id. Pelo que entendi, a nossa aplicação mostrava uma lista de usuários logo de cara. Agora, mostrará
+somente os usuários que foram cadastrados por determinado usuário (informação concedida por usuario_id). Porém, no nosso DB, usuario_id tem como default 1, ou seja, todos
+foram cadastrados por admin. Fizemos então:
+
+update model_login set usuario_id = 2 where id > 6;
+
+E assim, todos os usuários com id maior que 6 "foram cadastrados" pelo usuário de id = 2 (login e senha = admin3), e outros "foram cadastrados" pelo usuário de id = 1
+(login e senha = admin). Dessa forma, ao fazer login, só serão exibidos na lista os usuários cadastrados por cada um deles.
+
+
+OCULTANDO PÁGINA QUE NÃO É ADMIN:
+
+Digamos que eu queira exibir a página de cadastro de usuários somente para o admin, como posso fazer isso?
+Primeiro de tudo, adicionamos o JSTL dentro de navbarmainmenu.jsp. Agora, vamos achar o ponto, nessa página, em que o botão Usuário está localizado. No <li> deste link,
+vamos usar uma declaração do JSTL para testar uma condição. Ou seja, vamos envolver todo o código do Link que encaminha para Usuário dentro de <c:if test="true"></c:if>.
+Assim, só será exibido o HTML se determinada condição for verdadeira.
+Dentro de ModelLogin, adicionamos mais um atributo que já existe para todos os usuários no DB, que é o atributo userAdmin, que é booleano e diz se um usuário é admin ou não.
+Geramos o getter e o setter dele.
+A partir disso, no método de consulta no DB, dentro de DAOUsuarioRepository, fizemos o setUserAdmin() como um dado que vem do DB.
+E por fim, dentro de ServletLogin, instanciamos DAOUsuarioRepository, atribuímos o modelLogin dessa classe como o modelLogin que vem da consulta do DB, e criamos o atributo
+isAdmin por meio de request.getSession().setAttribute("isAdmin", modelLogin.getUserAdmin());
+Voltando a página jsp, fizemos <c:if test="${isAdmin}"></c:if>. Agora, o link de usuários só será exibido se o usuário for admin.
+
+CRIANDO PERFIS DE USUÁRIO USANDO COMBO:
+
+Adicionamos um novo campo no form de cadastro de usuários, para que quando um usuário for cadastrado ou atualizado, ele possa saber se é uma secretária, ou um auxiliar, ou
+um admin. Dentro de usuário.jsp, no form, adicionamos um campo com dropdown, e o seu name = perfil (o Alex usou a palavra combo, acredito que é a mesma coisa que dropdown).
+No ModelLogin, todos os usuários agora terão um atributo chamado perfil, assim como no DB também. Nos lugares de definição de usuário (gravação / atualização no DB, e em
+outros lugares, como na ServletUsuarioController), atualizamos para settar o valor de setPerfil().
+E por fim, cada item do dropdown terá um value, o qual será salvo no DB.
+Agora, modificando o que foi feito na parte acima, de ocultar página:
+Vamos em ServletLogin, e onde está isAdmin, passaremos perfil e faremos as mudanças necessárias. Em navbarmainmenu.jsp, onde estava isAdmin, trocaremos por
+${perfil == 'ADMIN'}. Isso quer dizer que a parte de Usuário só será exibida se o perfil de usuário for o de admin.
+
+Porém, se formos editar um usuário qualquer, na tela serão exibidas todas as informações daquele usuário, menos o perfil dele. Portanto, precisamos trabalhar com o HTML de
+forma dinâmica, para que quando editarmos um usuário, possamos ver em tela qual o ser perfil. Dentro de usuario.jsp, na parte de código do dropdown de perfil, temos 4 tags
+<option>. A primeira tem disabled="disabled", ou seja, nunca pode ser selecionada, e está ali só pra mostrar a função deste campo. As outras 3 tem os nomes e values de perfis
+de usuários. No HTML, tem a opção selected="selected", para que determinado campo esteja sempre selecionado. Portanto, para que determinado campo seja selecionado de forma
+dinâmica, fizemos:
+
+<option value="ADMIN" <% if(request.getSession().getAttribute("perfil").toString() == "ADMIN") {
+	out.print("");
+	out.print("selected=\"selected\"");
+	out.print("");
+} %>>Admin</option>
+
+Assim, se perfil == ADMIN, então ele exibirá os dados do usuário com este campo selecionado.
+
+Fizemos uma alteração no DB, e por padrão, todos os usuários terão como perfil o AUXILIAR. Isto porque, se eu não tiver um valor padrão, quando for trabalhar com esses
+usuários, eles terão valor null neste campo. Isso irá gerar uma nullPointerException em algum momento da aplicação, então o melhor a se fazer é deixar um valor padrão que
+pode ser modificado mais pra frente.
+
+IMPLEMENTANDO RADIOBUTTON DE GÊNERO:
+
+Radio é um conceito da estilização do HTML. Basicamente, enquanto um checkbox aceita ser marcado e desmarcado, além de aceitar a marcação de uma ou mais opções, o Radio
+aceita a marcação de um só por vez. É usado para a definição de gênero por exemplo, já que a pessoa só pode ser M ou F. Portanto, vamos no site do bootstrap pegar o código
+para implementar essa funcionalidade.
+Como vamos trabalhar com mais um atributo do usuário, vamos modificar a classe ModelLogin, e também o DB. Em ModelLogin, criamos o atributo sexo e o seu get e set.
+E no DB, criamos a coluna de sexo, com um alter table. Fizemos uma alteração no DB, e por padrão, todos os usuários terão como sexo o MASCULINO, para não gerar uma eventual
+nullPointerException.
+E em DAOUsuarioRepository, atualizamos todos os métodos que modificam o usuário, sejam eles os métodos de insert, update, e consultar também.
+
+Em usuario.jsp, criamos uma nova div, com base nas divs acima, pegando como exemplo os campos de nome, id etc. Nessa div, mantivemos as classes de form, para seguir a
+estilização do bootstrap. type = radio, e para ambos inputs, precisamos ter o name igual (nesse caso, name = sexo). Isto faz com que quando um for marcado, o outro seja
+desmarcado automaticamente. Settamos o value como MASCULINO para o primeiro, e vamos fazer um código java dentro desses inputs, para pegar o valor e trazer as informações de
+cada usuário de acordo com o DB. Basicamente, o que o código Java vai fazer é conferir se a informação que veio do DB é masculino ou feminino. Ao identificar qual informação
+veio, o radio input será marcado de acordo com o sexo.
+
+UPLOAD DE IMAGEM DE USUÁRIO:
+
+Parte 1:
+
+Vamos adicionar os campos de upload ao form de cadastro. Porém, como sabemos que cada usuário terá sua imagem de perfil, entendemos que este é mais um atributo a ser
+adicionado dentro de ModelLogin. Adicionamos os atributos fotoUser e extensaoFotoUser, ambos Strings. Criamos seus getters e setters, e partimos para a alteração do DB.
+No DB, criamos as colunas de mesmo nome, sendo que a primeira é do tipo text, porque terá um texto grande, e a segunda será varchar(10), pois extensão de arquivos sempre são
+pequenas.
+
+Após essas mudanças, vamos na ServletUsuarioController e adicionamos a anotação @MultipartConfig, que vai preparar a Servlet para trabalhar com uploads. Depois disso, em
+usuario.jsp, no form de cadastro, dentro da tag <form> vamos adicionar um atributo chamado enctype, que vem com um valor padrão, mas que agora é = "multipart/form-data".
+Abaixo da div de id, adicionamos as divs correspondentes ao campo de imagem. Lembrando que as class de cada div são definidas com base no bootstrap. Na tag <img>, definimos
+o seu id="fotoembase64", e tem esse nome porque a foto será convertida em uma string grande que será gravada no DB. Ela é convertida nesse formato porque isso possibilita ela
+ser enviada por um WebService ou por JSON, então fica mais fácil de trabalhar com imagens assim.
+
+Parte 2:
+
+No input da imagem, adicionamos o atributo accept="image/*", para que este input só aceite imagens (se eu colocasse accept="audio/*", seriam aceitos qualquer tipo de arquivo
+de áudio/som). Este input também recebe o id="fileFoto" e o name="fileFoto".
+Além disso, queremos que quando selecionarmos uma imagem, a sua miniatura seja carregada na tela. Por isso, mais uma vez dentro de input, adicionamos o atributo onchange, e
+dentro dele, passaremos uma função JS. Essa funçao recebe 2 parâmetros: visualizarImg('fotoembase64', 'fileFoto'). O primeiro é a <img> do HTML, e o segundo é o fileInput
+que substituirá a foto do HTML. A função JS vai substituir o src da img pelo src do input, e assim, a foto vai aparecer na tela.
+
+Agora precisamos fazer a imagem chegar na Servlet. Primeiro, fizemos um if (ServletFileUpload.isMultipartContent(request)). A partir daí, seguimos com os passos para a
+"captura" da imagem. Segundo a documentação, ServletFileUpload é uma API de alto nível para processammento de upload de arquivos. Essa classe lida com múltiplos arquivos por 
+um único widget HTML, enviados usando o tipo de codificação multipart/mixed. Já o método isMultipartContent() é um metodo estático (por isso é chamado pela classe) que recebe
+como parâmetro uma HttpServletRequest request, e é um método utilitário que determina se a request contém um conteúdo (ou arquivo) multipart. Ele retornará true se a request
+tiver um conteúdo multipart.
+
+Dentro do if, usamos uma variável do tipo Part, que é uma classe que representa uma parte ou um item de formulário que foi recebido dentro uma requisição multipart/form-data
+com uso do método POST. O nosso form já tinha o método definido como post, e por isso, definimos enctype="multipart/form-data" na primeira aula. A partir disso, chamamos o
+método getPart("fileFoto"), passando o name que definimos no HTML do form, e assim, a Servlet capturou a foto. Depois disso, usamos a classe IOUtils para transformar a foto
+em byte[]. E por fim, transformamos esse array em uma String que guardará essa foto em base64. Tudo isso para que a imagem possa ser gravada no DB.
+
+Parte 3:
+
+Depois disso, alteramos a String que vai representar a foto em base64, porque ela deve ter uma estrutura pré-definida para que o HTML possa montar ela como foto, quando ler
+do DB. A partir disso, settamos os valores de fotouser e extensaofotouser, do ModelLogin. Agora, vamos atualizar todos os métodos de DAOUsuarioRepository, de modo que o
+usuário tenha a opção de ter ou não uma foto. Para isso, fizemos um if, e se houver uma foto reconhecida pela request, vamos fazer um update no usuário e salvar as
+informações da foto, tanto no método de INSERT INTO, quanto no método de UPDATE.
+
+Parte 4:
+
+Agora vamos trabalhar com a leitura dessa imagem. Fizemos uma condição no HTML usando o JSTL com <c:if test="${modelLogin.fotoUser != ''}">. Ou seja, se fotoUser é diferente
+de vazio. Se o usuário tiver uma foto gravada, então o src da foto será essa própria foto que foi testada. Senão houver foto de usuário, teremos uma foto padrão.
+Depois disso, atualizamos alguns métodos de leitura do DB (os métodos que retornavam listas não foram alterados, porque se carregássemos fotos de usuários dentro de lista,
+o sistema ficaria muito pesado. Carregamos a foto somente em métodos de leitura de usuários individuais). 
