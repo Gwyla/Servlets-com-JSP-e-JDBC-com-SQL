@@ -1,4 +1,4 @@
-
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 -----------------------------------------------------------------------------------------
 CREATE DATABASE "curso-jsp"
     WITH
@@ -9,8 +9,7 @@ CREATE DATABASE "curso-jsp"
     TABLESPACE = pg_default
     CONNECTION LIMIT = -1;
 -----------------------------------------------------------------------------------------
-    
-    
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\    
 -----------------------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.model_login
 (
@@ -21,7 +20,7 @@ CREATE TABLE IF NOT EXISTS public.model_login
 
 TABLESPACE pg_default;
 -----------------------------------------------------------------------------------------
-
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 -----------------------------------------------------------------------------------------
 ALTER TABLE IF EXISTS public.model_login
     OWNER to postgres;
@@ -31,12 +30,12 @@ INSERT INTO public.model_login(
 	login, senha)
 	VALUES ('admin', 'admin');
 -----------------------------------------------------------------------------------------
-	
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 -----------------------------------------------------------------------------------------
 alter table model_login
 add id serial primary key;
 -----------------------------------------------------------------------------------------
-
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 -----------------------------------------------------------------------------------------
 alter table model_login
 add nome varchar(300),
@@ -50,7 +49,7 @@ alter table model_login alter column nome set not null;
 alter table model_login alter column senha set not null;
 alter table model_login alter column login set not null;
 -----------------------------------------------------------------------------------------
-
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 -----------------------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.model_login
 (
@@ -65,7 +64,7 @@ CREATE TABLE IF NOT EXISTS public.model_login
 
 TABLESPACE pg_default;
 -----------------------------------------------------------------------------------------
-
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 -----------------------------------------------------------------------------------------
 ALTER TABLE IF EXISTS public.model_login
     OWNER to postgres;
@@ -73,12 +72,12 @@ ALTER TABLE IF EXISTS public.model_login
     
 alter table model_login add column useradmin boolean default false not null;
 -----------------------------------------------------------------------------------------
-
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 -----------------------------------------------------------------------------------------
 alter table model_login add column usuario_id bigint not null default 1;
 alter table model_login add constraint usuario_fk foreign key (usuario_id) references model_login(id);
 -----------------------------------------------------------------------------------------
-
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 -----------------------------------------------------------------------------------------
 alter table model_login add column perfil varchar(200);
 alter table model_login add column sexo varchar(200);
@@ -86,8 +85,17 @@ alter table model_login add column sexo varchar(200);
 update model_login set perfil = 'AUXILIAR' where perfil is null;
 update model_login set sexo = 'MASCULINO' where sexo is null;
 -----------------------------------------------------------------------------------------
-
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 -----------------------------------------------------------------------------------------
 alter table model_login add column fotouser text;
 alter table model_login add column extensaofotouser varchar(10);
+-----------------------------------------------------------------------------------------
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+-----------------------------------------------------------------------------------------
+ALTER TABLE model_login ADD COLUMN cep character varying(250);
+ALTER TABLE model_login ADD COLUMN logradouro character varying(250);
+ALTER TABLE model_login ADD COLUMN bairro character varying(250);
+ALTER TABLE model_login ADD COLUMN localidade character varying(250);
+ALTER TABLE model_login ADD COLUMN uf character varying(250);
+ALTER TABLE model_login ADD COLUMN numero character varying(250);
 -----------------------------------------------------------------------------------------

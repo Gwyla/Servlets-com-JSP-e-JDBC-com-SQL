@@ -677,4 +677,70 @@ Parte 4:
 Agora vamos trabalhar com a leitura dessa imagem. Fizemos uma condição no HTML usando o JSTL com <c:if test="${modelLogin.fotoUser != ''}">. Ou seja, se fotoUser é diferente
 de vazio. Se o usuário tiver uma foto gravada, então o src da foto será essa própria foto que foi testada. Senão houver foto de usuário, teremos uma foto padrão.
 Depois disso, atualizamos alguns métodos de leitura do DB (os métodos que retornavam listas não foram alterados, porque se carregássemos fotos de usuários dentro de lista,
-o sistema ficaria muito pesado. Carregamos a foto somente em métodos de leitura de usuários individuais). 
+o sistema ficaria muito pesado. Carregamos a foto somente em métodos de leitura de usuários individuais).
+
+DOWNLOAD DA IMAGEM DO USUÁRIO:
+
+Vamos aproveitar a imagem exibida do usuário para fazer o download dela. Vamos envolver essa imagem em uma tag <a>, para que ela se torne um link. No href dessa tag,
+passamos: "<%= request.getContextPath()%>/ServletUsuarioController?acao=downloadFoto&id=${modelLogin.id}>". Um href sempre dispara o método GET. Aproveitamos que já
+implementamos várias condições, e passamos acao=downloadFoto. Nisso, dentro de ServletUsuarioController, adicionamos um else if para essa acao, consultamos os dados do
+usuário por meio da classe DAO, e fizemos algumas verificações: se realmente existir uma foto de usuário, vamos modificar o header da response. Obs.: o HTTP tem um header com
+informações que são passadas ao navegador, não entendo muito sobre isso, estudar depois. Por meio da response, chamamos setHeader(), que recebe um name e um valor. O name
+foi passado como "Content-Disposition" para que o navegador identifique que será feito um download ali. E o value foi
+"attachment;filename=arquivo." + modelLogin.getExtensaoFotoUser() para mostrar que o que deve ser baixado é a nossa foto. Pegamos um OutputStream de response, o qual servirá
+para escrever dados binários na response, e chamamos o método write() para escrever esses binários, passando como parâmetro um decodeBase64() de fotouser, que é a foto do
+usuário. Ou seja, ele vai pegar essa foto que está em Base64, decodificar e escrevê-la no OutputStream da response. Depois disso, quando clicarmos na foto do site, faremos
+o download da imagem normalmente. Quando abrir a janela de download, automaticamente a foto virá com o nome de "arquivo" pois passamos este valor no setHeader().
+
+CONSUMINDO API WebService ViaCEP:
+
+Vamos atribuir um CEP para cada usuário, e para isso, faremos o uso da API supracitada. Pesquisamos por ela no Google e entramos no seu site, e vimos como implementá-la no
+projeto. Antes disso, atualizamos ModelLogin para ter um campo de CEP e outros referentes ao Endereço. Criamos estes mesmos campos também no DB por meio de ALTER TABLE.
+Após essas mudanças, fomos inserir estes campos na tela. Fomos em usuario.jsp, copiamos todo o <div> de Login, e adicionamos um div desse para cada atributo do endereço (cep,
+logradouro...). Depois de ajustados os campos name, id, entre outros, fizemos um evento no campo de CEP chamado onblur="pesquisaCep();". Ou seja, quando colocamos onfocus,
+aquele campo fica focado. Quando colocamos onblur, o evento será disparado quando o campo deixar de ter um foco (ou seja, quando for preenchido e o usuário passar para o
+próximo campo). Assim, no momento em que o CEP for preenchido e o usuário passar para o próximo campo, o resto do endereço será preenchido automaticamente.
+
+Nisso, pegamos o código JS no ViaCEP, e com base nele, fizemos uma função que será chamado no onblur, e trará os dados de endereço daquele usuário. Por fim, atualizamos a
+classe DAO do usuário, settando os valores de Endereço para serem salvos no DB, além de trazer esses valores nos métodos de consulta. E também settamos os valores na Servlet
+de usuário, pegando os parâmetros da tela.
+*Obs.: em usuario.jsp, mudamos o charset para UTF-8 por questões de acentuação.
+
+FAZENDO A PAGINAÇÃO DO SQL COM USUÁRIOS LIMITADO A 5:
+
+Queremos exibir de 5 em 5 usuários quando for acessada a página de cadastro. Para isso, fomos em doGet na Servlet de usuários, e nos ifs que retornavam uma lista de usuários,
+acessamos o método de DAO de usuários, e mudamos a sua SQL statement. Para isso, bastou acrescentar " limit 5" para que o DB retorne para nós uma lista com no máximo 5
+usuários.
+Agora, precisamo entender o conceito de OFFSET. Pegando como base a seguinte SQL statement:
+
+select * from model_login where usuario_id = 1 order by nome offset 0 limit 5;
+
+usuario_id = 1 significa que serão exibidos todos que foram cadastrados pelo admin. No meu caso, a lista completa é de 9 usuários, mas com offset 0 e limit 5, vou ter uma
+lista que exibirá do usuário 1 ao 5. Se eu mudar offset para 5, será exibida uma lista do usuário 6 ao 9, que eram os 4 restantes pra fechar em 9. Portanto, como já limitamos
+nossa lista para 5 usuários, precisamos agora implementar um método que receba um offset para exibir a lista de forma dinâmica.
+Portanto, pegamos o resto da statement a partir de order, e colocamos o offset de forma dinâmica. Porém, no nosso exemplo, temos 9 cadastros para colocar em 2 páginas, pois
+serão 5 usuários por página. Portanto, podemos fazer a razão Página = 9 / 5 (nesse caso específico); Isso na maioria das vezes dará um número quebrado (no nosso caso,
+deu 1,8). Ou seja, daria 1,8 página, e não é o que queremos. Para isso, vamos implementar uma lógica para transformar números quebrados em mais uma página.
+
+Para isso, pegamos o nº de páginas e descobrimos o seu módulo (pagina % 2). Se for maior que 0 (nesse caso é 1.8), adicionaremos mais uma página, e descartaremos o valor
+decimal. Fizemos isso por meio do método totalPagina() dentro do DAO de usuários. Depois disso, precisamos mandar este atributo para a tela dentro da Servlet de usuarios.
+Em todos os métodos que há um redirecionamento depois de serem listados os usuários, vamos mostrar o número de páginas para a Servlet, por meio de:
+
+request.setAttribute("totalPagina", daoUsuarioRepository.totalPagina(this.getUserLogado(request)));
+
+Agora, vamos trabalhar esse atributo na tela e a montagem das páginas. Para resgatar esse atributo na tela, pesquisamos por "bootstrap pagination" no google e copiamos o
+código. Esse código tinha uma estrutura fixa com os botões p/ cada página, mas queremos criar uma estrutura dinâmica para que o número de páginas seja variável, de acordo com
+o nº de cadastros que vier do DB. Portanto, pegamos o atributo totalPagina que criamos na Servlet e resgatamos ele na tela, em usuario.jsp. Fizemos um for, e dentro desse
+loop, será definida uma url para cada página, além de uma ação a ser implementada no doGet da Servlet, e por fim, será impresso a estrutura HTML do bootstrap para exibir os
+números de cada página.
+
+Um  detalhe: em usuario.jsp, na url que for definida p/ cada página, a url ficou: request.getContextPath() + "/ServletUsuarioController?acao=paginar&pagina=" + (i * 5);
+O (i * 5) pode ser explicado pelo conceito de OFFSET: Quando fizemos nossa busca no DB, definimos o offset para buscar de 5 em 5 usuários. Na primeira, vai mostrar dos
+usuários 1 a 5 (offset = 0), na segunda, vai mostrar do 6 ao 10 (offset = 5) e assim por diante. O offset vai crescer de 5 em 5 para exibir os usuários corretamente.
+Criamos um método no DAO de usuários que precisa receber um offset para listar os usuários paginados, e nesse caso, o offset será o parâmetro "pagina" dessa url.
+Assim, na Servlet, conseguimos resgatar essa lista de usuários, settar os atributos e exibi-los na tela. Como a tabela de usuários já tinha sido montada anteriormente, os
+usuários já estão sendo exibidos paginados normalmente.
+
+LIMPANDO O LAYOUT DO TEMPLATE DO SISTEMA:
+
+Basicamente vamos comentar o código HTML com <!-- --> nos trechos em que quisermos desativar algumas funcionalidades.

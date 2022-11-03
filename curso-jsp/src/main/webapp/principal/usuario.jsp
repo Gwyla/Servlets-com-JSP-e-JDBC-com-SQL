@@ -1,5 +1,5 @@
 <%@page import="model.ModelLogin"%>
-<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+<%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="ISO-8859-1"%>
 
 <%@ taglib prefix = "c" uri = "http://java.sun.com/jsp/jstl/core" %>
@@ -59,7 +59,9 @@
                                                             <div class="form-group form-default input-group mb-4">
                                                             	<div class="input-group-prepend">
 	                                                            	<c:if test="${modelLogin.fotoUser != '' && modelLogin.fotoUser != null}">
-	                                                            		<img alt="Imagem usuário" id="fotoembase64" src="${modelLogin.fotoUser}" width="70px">
+	                                                            		<a href="<%= request.getContextPath()%>/ServletUsuarioController?acao=downloadFoto&id=${modelLogin.id}">
+	                                                            			<img alt="Imagem usuário" id="fotoembase64" src="${modelLogin.fotoUser}" width="70px">
+	                                                            		</a>
 	                                                            	</c:if>
 	                                                            	<c:if test="${modelLogin.fotoUser == '' || modelLogin.fotoUser == null}">
 	                                                            		<img alt="Imagem usuário" id="fotoembase64" src="assets/images/avatar-blank.jpg" width="70px">
@@ -118,6 +120,42 @@
 																<span class="form-bar"></span>
                                                                 <label class="float-label">Perfil:</label>
 															</div>
+                                                            
+                                                            <div class="form-group form-default form-static-label">
+                                                                <input onblur="pesquisaCep();" type="text" name="cep" id="cep" class="form-control" required="required" value="${modelLogin.cep}">
+                                                                <span class="form-bar"></span>
+                                                                <label class="float-label">CEP</label>
+                                                            </div>
+                                                            
+                                                            <div class="form-group form-default form-static-label">
+                                                                <input type="text" name="logradouro" id="logradouro" class="form-control" required="required" value="${modelLogin.logradouro}">
+                                                                <span class="form-bar"></span>
+                                                                <label class="float-label">Logradouro</label>
+                                                            </div>
+                                                            
+                                                            <div class="form-group form-default form-static-label">
+                                                                <input type="text" name="bairro" id="bairro" class="form-control" required="required" value="${modelLogin.bairro}">
+                                                                <span class="form-bar"></span>
+                                                                <label class="float-label">Bairro</label>
+                                                            </div>
+
+                                                            <div class="form-group form-default form-static-label">
+                                                                <input type="text" name="localidade" id="localidade" class="form-control" required="required" value="${modelLogin.localidade}">
+                                                                <span class="form-bar"></span>
+                                                                <label class="float-label">Localidade</label>
+                                                            </div>
+                                                            
+                                                            <div class="form-group form-default form-static-label">
+                                                                <input type="text" name="uf" id="uf" class="form-control" required="required" value="${modelLogin.uf}">
+                                                                <span class="form-bar"></span>
+                                                                <label class="float-label">Estado</label>
+                                                            </div>
+                                                            
+                                                            <div class="form-group form-default form-static-label">
+                                                                <input type="text" name="numero" id="numero" class="form-control" required="required" value="${modelLogin.numero}">
+                                                                <span class="form-bar"></span>
+                                                                <label class="float-label">Número</label>
+                                                            </div>
                                                             
                                                             <div class="form-group form-default form-static-label">
                                                                 <input type="text" name="login" id="login" class="form-control" required="required" value="${modelLogin.login}">
@@ -186,6 +224,19 @@
 												</tbody>
 											</table>
 										</div>
+										<nav aria-label="Page navigation example">
+											<ul class="pagination">
+											
+											<% 
+												int totalPagina = (int) request.getAttribute("totalPagina");
+												for (int i = 0; i < totalPagina; i++) {
+													String url = request.getContextPath() + "/ServletUsuarioController?acao=paginar&pagina=" + (i * 5);
+													out.print("<li class=\"page-item\"><a class=\"page-link\" href=\""+ url +"\">" + (i + 1) + "</a></li>");
+												}
+											%>
+												
+											</ul>
+										</nav>
 									</div>
 								<!-- Page-body end -->
 							</div>
@@ -245,6 +296,26 @@
 	
 <script type="text/javascript">
 
+	function pesquisaCep() {
+		var cep = $("#cep").val();
+		
+		$.getJSON("https://viacep.com.br/ws/"+ cep +"/json/?callback=?", function(dados) {
+			
+			if (!("erro" in dados)) {
+                //Atualiza os campos com os valores da consulta.
+                $("#cep").val(dados.cep);
+                $("#logradouro").val(dados.logradouro);
+                $("#bairro").val(dados.bairro);
+                $("#localidade").val(dados.localidade);
+                $("#uf").val(dados.uf);
+            }
+//             else {
+//                 //CEP pesquisado não foi encontrado.
+//                 limpa_formulário_cep();
+//                 alert("CEP não encontrado.");
+//             }
+		});
+	}
 
 	function visualizarImg(fotoBase64, fileFoto) {
 		
