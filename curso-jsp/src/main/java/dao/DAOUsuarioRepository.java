@@ -179,6 +179,33 @@ public List<ModelLogin> consultarUsuarioListJSTLPaginado(Long usuarioLogado, Int
 		return retorno;
 	}
 	
+	public int consultarUsuarioListTotalPagina(String nome, Long usuarioLogado) throws Exception {
+
+		String sql = "select count(1) as total from model_login where upper(nome) like upper(?) and useradmin is false and usuario_id = ? ";
+		
+		PreparedStatement statement = connection.prepareStatement(sql);
+		statement.setString(1, "%" + nome + "%");
+		statement.setLong(2, usuarioLogado);
+		
+		ResultSet resultado = statement.executeQuery();
+		
+		resultado.next();
+		
+		Double cadastros = resultado.getDouble("total");
+
+		Double porPagina = 5.0;
+
+		Double pagina = cadastros / porPagina;
+
+		Double resto = pagina % 2;
+
+		if (resto > 0) {
+			pagina++;
+		}
+
+		return pagina.intValue();
+	}
+	
 	public List<ModelLogin> consultarUsuarioList(String nome, Long usuarioLogado) throws Exception {
 
 		List<ModelLogin> retorno = new ArrayList<>();

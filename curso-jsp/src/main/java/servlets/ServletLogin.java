@@ -62,6 +62,7 @@ public class ServletLogin extends HttpServlet {
 					request.getSession().setAttribute("usuario", modelLogin.getLogin());
 					/*Ele pega a sessão do request e setta o objeto modelLogin para dentro da String usuario.*/
 					request.getSession().setAttribute("perfil", modelLogin.getPerfil());
+					request.getSession().setAttribute("imagemUser", modelLogin.getFotoUser());
 					
 					/*Em index.jsp, eu não estava entendendo o input referente a url. Porém, aqui
 					 fizemos uma verificação que faz sentido: no momento em que fazemos login,

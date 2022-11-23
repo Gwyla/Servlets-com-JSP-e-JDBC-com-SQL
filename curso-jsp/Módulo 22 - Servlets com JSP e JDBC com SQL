@@ -744,3 +744,8 @@ usuários já estão sendo exibidos paginados normalmente.
 LIMPANDO O LAYOUT DO TEMPLATE DO SISTEMA:
 
 Basicamente vamos comentar o código HTML com <!-- --> nos trechos em que quisermos desativar algumas funcionalidades.
+
+PAGINAÇÃO DO AJAX DENTRO DO MODAL:
+
+Quando realizamos a paginação dos usuários na tela, limitamos o resultado a 5 usuários por página. Porém, este mesmo método é chamado dentro do modal, e por não ser paginado,
+ele só mostra no máximo 5 usuários. Portanto, vamos ter que cria a paginação do modal, para que ele possa exibir os usuários em sua totalidade.
