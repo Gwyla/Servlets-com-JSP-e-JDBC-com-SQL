@@ -748,4 +748,8 @@ Basicamente vamos comentar o código HTML com <!-- --> nos trechos em que quiserm
 PAGINAÇÃO DO AJAX DENTRO DO MODAL:
 
 Quando realizamos a paginação dos usuários na tela, limitamos o resultado a 5 usuários por página. Porém, este mesmo método é chamado dentro do modal, e por não ser paginado,
-ele só mostra no máximo 5 usuários. Portanto, vamos ter que cria a paginação do modal, para que ele possa exibir os usuários em sua totalidade.
+ele só mostra no máximo 5 usuários. Portanto, vamos ter que criar a paginação do modal, para que ele possa exibir os usuários em sua totalidade.
+Primeiro fizemos o método consultarUsuarioListTotalPagina(), pois ele que vai trazer o nº de nomes achados em cima do que foi pesquisado. A partir deste numero montamos a 
+paginação.
+Na ServletController, adicionamos um header na response, devolvendo para essa response o nº de páginas (acao = buscarUserAjax). Fizemos isso para organizar melhor nossa res
+ponse.

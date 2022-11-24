@@ -105,6 +105,7 @@ public class DAOUsuarioRepository {
 public List<ModelLogin> consultarUsuarioListJSTLPaginado(Long usuarioLogado, Integer offset) throws Exception {
 		
 		List<ModelLogin> retorno = new ArrayList<>();
+		
 		String sql = "select * from model_login where useradmin is false and usuario_id = " + usuarioLogado + " order by nome offset " + offset + " limit 5";
 		PreparedStatement statement = connection.prepareStatement(sql);
 		
@@ -204,6 +205,34 @@ public List<ModelLogin> consultarUsuarioListJSTLPaginado(Long usuarioLogado, Int
 		}
 
 		return pagina.intValue();
+	}
+	
+	public List<ModelLogin> consultarUsuarioListOffSet(String nome, Long usuarioLogado, int offset) throws Exception {
+
+		List<ModelLogin> retorno = new ArrayList<>();
+		
+		String sql = "select * from model_login where upper(nome) like upper(?) and useradmin is false and usuario_id = ? offset "+offset+" limit 5";
+		PreparedStatement statement = connection.prepareStatement(sql);
+		statement.setString(1, "%" + nome + "%");
+		statement.setLong(2, usuarioLogado);
+		
+		ResultSet resultado = statement.executeQuery();
+		
+		while(resultado.next()) {
+			ModelLogin modelLogin = new ModelLogin();
+			
+			modelLogin.setId(resultado.getLong("id"));
+			modelLogin.setNome(resultado.getString("nome"));
+			modelLogin.setEmail(resultado.getString("email"));
+			modelLogin.setLogin(resultado.getString("login"));
+			//modelLogin.setSenha(resultado.getString("senha")); Por questão de segurança, não exibiremos a senha.
+			modelLogin.setPerfil(resultado.getString("perfil"));
+			modelLogin.setSexo(resultado.getString("sexo"));
+
+			retorno.add(modelLogin);
+		}
+		
+		return retorno;
 	}
 	
 	public List<ModelLogin> consultarUsuarioList(String nome, Long usuarioLogado) throws Exception {
