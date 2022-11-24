@@ -179,7 +179,6 @@ public class ServletUsuarioController extends ServletGenericUtil {
 					/*Esse método retorna a extensão do objeto. Inicialmente veio como image/png, por isso fizemos o split para trazer só o png*/
 				}
 			}
-			/*anotação de teste*/
 			
 			/*A verificação abaixo é:
 			 * 1) Se já existe um usuário cadastrado com esse login, por meio do método validarLogin();
