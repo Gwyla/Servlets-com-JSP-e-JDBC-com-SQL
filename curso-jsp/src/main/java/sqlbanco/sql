@@ -99,3 +99,31 @@ ALTER TABLE model_login ADD COLUMN localidade character varying(250);
 ALTER TABLE model_login ADD COLUMN uf character varying(250);
 ALTER TABLE model_login ADD COLUMN numero character varying(250);
 -----------------------------------------------------------------------------------------
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+-----------------------------------------------------------------------------------------
+CREATE SEQUENCE IF NOT EXISTS public.telefone_seq
+    INCREMENT 1
+    START 1
+    MINVALUE 1
+    MAXVALUE 9223372036854775807
+    CACHE 1;
+
+ALTER SEQUENCE public.telefone_seq
+    OWNER TO postgres;
+-----------------------------------------------------------------------------------------
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+-----------------------------------------------------------------------------------------
+
+create table telefone(
+	id integer not null default nextval('telefone_seq'::regclass),
+	numero varchar(50) not null,
+	usuario_pai_id bigint not null,
+	usuario_cad_id bigint not null,
+	
+	constraint telefone_pkey primary key (id),
+	constraint usuario_pai_fk foreign key (usuario_pai_id) references model_login (id),
+	constraint usuario_cad_fk foreign key (usuario_cad_id) references model_login (id)
+)
+-----------------------------------------------------------------------------------------
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+-----------------------------------------------------------------------------------------

@@ -31,6 +31,7 @@ public class ServletUsuarioController extends ServletGenericUtil {
 		super();
 	}
 
+	@SuppressWarnings("static-access")
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
 		try {
@@ -179,6 +180,7 @@ public class ServletUsuarioController extends ServletGenericUtil {
 				
 				if (part.getSize() > 0) {
 					byte[] foto = IOUtils.toByteArray(part.getInputStream()); /*Converte a imagem para byte*/
+					@SuppressWarnings("static-access")
 					String imagemBase64 = "data:image/" +  part.getContentType().split("\\/")[1] + ";base64," + new Base64().encodeBase64String(foto);
 					/*Observação sobre o método split(): Dentro de uma String, temos caracteres de escape. Quando vamos especificar um caminho no PC, não podemos simplesmente
 					passar C:/... porque com uma barra só, o programa não compila. Para resolver, fazemos C://..., e aí o código compila com 2 barras. No método split acima,

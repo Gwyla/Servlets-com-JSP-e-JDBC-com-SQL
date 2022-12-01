@@ -3,7 +3,6 @@ package dao;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -350,6 +349,35 @@ public List<ModelLogin> consultarUsuarioListJSTLPaginado(Long usuarioLogado, Int
 			modelLogin.setPerfil(resultado.getString("perfil"));
 			modelLogin.setSexo(resultado.getString("sexo"));
 			modelLogin.setFotoUser(resultado.getString("fotouser"));
+			modelLogin.setCep(resultado.getString("cep"));
+			modelLogin.setLogradouro(resultado.getString("logradouro"));
+			modelLogin.setBairro(resultado.getString("bairro"));
+			modelLogin.setLocalidade(resultado.getString("localidade"));
+			modelLogin.setUf(resultado.getString("uf"));
+			modelLogin.setNumero(resultado.getString("numero"));
+		}
+		return modelLogin;
+	}
+	
+	public ModelLogin consultarUsuarioId(Long id) throws Exception {
+		ModelLogin modelLogin = new ModelLogin();
+
+		String sql = "select * from model_login where id = ? and useradmin is false";
+		PreparedStatement statement = connection.prepareStatement(sql);
+		statement.setLong(1, id);
+		
+		ResultSet resultado = statement.executeQuery();
+
+		while (resultado.next()) /* Se tem resultado (retorno de usuário), ele fará o que está abaixo */ {
+			modelLogin.setId(resultado.getLong("id"));
+			modelLogin.setNome(resultado.getString("nome"));
+			modelLogin.setEmail(resultado.getString("email"));
+			modelLogin.setSenha(resultado.getString("senha"));
+			modelLogin.setLogin(resultado.getString("login"));
+			modelLogin.setPerfil(resultado.getString("perfil"));
+			modelLogin.setSexo(resultado.getString("sexo"));
+			modelLogin.setFotoUser(resultado.getString("fotouser"));
+			modelLogin.setExtensaoFotoUser(resultado.getString("extensaofotouser"));
 			modelLogin.setCep(resultado.getString("cep"));
 			modelLogin.setLogradouro(resultado.getString("logradouro"));
 			modelLogin.setBairro(resultado.getString("bairro"));

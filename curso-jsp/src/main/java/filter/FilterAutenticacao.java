@@ -18,6 +18,7 @@ import java.sql.SQLException;
 
 import connection.SingleConnectionBanco;
 
+@SuppressWarnings("serial")
 @WebFilter(urlPatterns = {"/principal/*"})
 /*Intercepta as requisições que vierem da pasta principal, de qualquer página jsp ou html.*/
 public class FilterAutenticacao extends HttpFilter implements Filter {

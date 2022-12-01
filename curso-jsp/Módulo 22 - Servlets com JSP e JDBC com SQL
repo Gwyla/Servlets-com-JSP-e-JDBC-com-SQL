@@ -753,3 +753,21 @@ Primeiro fizemos o método consultarUsuarioListTotalPagina(), pois ele que vai tr
 paginação.
 Na ServletController, adicionamos um header na response, devolvendo para essa response o nº de páginas (acao = buscarUserAjax). Fizemos isso para organizar melhor nossa res
 ponse.
+
+CRIANDO TABELA E MODAL DE TELEFONE:
+
+Vamos começar a trabalhar com relacionamentos no DB, neste caso, um para muitos (um usuário pode ter vários telefones). Para isso, vamos criar essa tabela no DB. Começamos
+criando a sequência telefone_seq, para que seja uma tabela dinâmica que incremente o id sozinho.
+
+Depois disso, criamos a table de telefone com algumas observações: ela terá um id, o qual será uma primary key (não pode existir outra igual); terá uma coluna usuario_pai_id,
+a qual será uma foreign key para o id da table model_login, por meio da constraint usuario_pai_fk. Ou seja, por meio do que for preenchido aqui, poderá se saber a quem
+pertence determinado telefone. Por fim, também terá a coluna usuario_cad_id, com uma foreign key por meio da constraint usuario_cad_fk, que indicará quem cadastrou aquele
+usuário que recebe determinada telefone.
+
+A partir disso, criamos a classe ModelTelefone. A classe é a representação da table do DB. Destaque para usuario_pai_id e usuario_cad_id, estes serão atributos do tipo
+ModelLogin. Por fim, implementamos Serializable para a classe ter um nº serial, e os métodos equals e hashcode para o id dessa classe.
+
+Criamos o DAOTelefoneRepository, e dentro dele fizemos os métodos de consulta, cadastro e delete de telefones.
+
+Agora vamos adicionar o botão de telefone na tela. Um detalhe é que neste botão, teremos um href. Isto para que ao ser acionado, ele mande as informações para a Servlet que
+colocaremos como endereço, e assim a Servlet capture os parâmetros e faça o que tem que ser feito. Para isso, este botão será uma tag <a>, e não o <button> tradicional.
