@@ -228,6 +228,7 @@
 												</tbody>
 											</table>
 										</div>
+										
 										<nav aria-label="Page navigation example">
 											<ul class="pagination">
 											
@@ -304,6 +305,14 @@
 </div>
 	
 <script type="text/javascript">
+
+$("#numero").keypress(function(event) {
+	return /\d/.test(String.fromCharCode(event.keyCode));
+});
+
+$("#cep").keypress(function(event) {
+	return /\d/.test(String.fromCharCode(event.keyCode));
+});
 
 	function pesquisaCep() {
 		var cep = $("#cep").val();

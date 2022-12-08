@@ -21,9 +21,9 @@ public class DAOTelefoneRepository {
 	public List<ModelTelefone> listaFone(Long idUserPai) throws Exception {
 		List<ModelTelefone> listTelefones = new ArrayList<>();
 		
-		String sql = "select * from telefone where usuario_pai_id = ?";
-		
+		String sql = "select * from telefone where usuario_pai_id = ?";		
 		PreparedStatement statement = connection.prepareStatement(sql);
+		
 		statement.setLong(1, idUserPai);
 		
 		ResultSet resultado = statement.executeQuery();
@@ -64,5 +64,41 @@ public class DAOTelefoneRepository {
 		
 		statement.executeUpdate();
 		connection.commit();
+	}
+	
+	/***********************************************************************************/
+	
+	public ModelTelefone consultaTelefone(Long id) throws Exception {
+		ModelTelefone telefone = new ModelTelefone();
+		
+		String sql = "select * from telefone where id=?";
+		
+		PreparedStatement statement = connection.prepareStatement(sql);
+		statement.setLong(1, id);
+		
+		ResultSet resultado = statement.executeQuery();
+		
+		while(resultado.next()) {
+			telefone.setId(resultado.getLong("id"));
+			telefone.setNumero(resultado.getString("numero"));
+			telefone.setUsuario_pai_id(daoUsuarioRepository.consultarUsuarioId(resultado.getLong("usuario_pai_id")));
+			telefone.setUsuario_cad_id(daoUsuarioRepository.consultarUsuarioId(resultado.getLong("usuario_cad_id")));
+		}
+		
+		return telefone;
+	}
+	
+	public ModelTelefone atualizaTelefone(Long id) throws Exception {
+		String sql = "update telefone set numero=? where id=?";
+		
+		PreparedStatement statement = connection.prepareStatement(sql);
+		
+		statement.setString(1, this.consultaTelefone(id).getNumero());
+		statement.setLong(2, id);
+		
+		statement.executeUpdate();
+		connection.commit();
+		
+		return this.consultaTelefone(id);
 	}
 }

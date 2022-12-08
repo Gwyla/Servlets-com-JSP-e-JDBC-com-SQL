@@ -1,9 +1,8 @@
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
     pageEncoding="ISO-8859-1"%>
 
+<%@ taglib prefix = "c" uri = "http://java.sun.com/jsp/jstl/core" %>
 
-<!-- TODAS AS PÁGINAS DO SISTEMA PODEM SEGUIR ESSA ESTRUTURA -->
-    
 <!DOCTYPE html>
 <html lang="en">
 
@@ -36,12 +35,71 @@
                                 <div class="page-wrapper">
                                     <!-- Page-body start -->
                                     <div class="page-body">
-                                        <div class="row">
-                                            <!-- task, page, download counter  start -->
-                                            <h1>Tela de Telefone</h1>
-                                            <!--  project and team member end -->
-                                        </div>
-                                    </div>
+
+										<div class="row">
+											<div class="col-sm-12">
+												<!-- Basic Form Inputs card start -->
+												<div class="card">
+													<div class="card-block">
+														<h4 class="sub-title">Cadastro de telefone</h4>
+														<form class="form-material" action="<%= request.getContextPath() %>/ServletTelefone" method="post" id="formFone">
+
+															<div class="form-group form-default form-static-label">
+																<input type="text" name="id" id="id" class="form-control"
+																	readonly="readonly" value="${modelLogin.id}"> <span
+																	class="form-bar"></span> <label class="float-label">Id</label>
+															</div>
+															
+															<div class="form-group form-default form-static-label">
+                                                                <input readonly="readonly" type="text" name="nome" id="nome" class="form-control" required="required" value="${modelLogin.nome}">
+                                                                <span class="form-bar"></span>
+                                                                <label class="float-label">Nome</label>
+                                                            </div>
+                                                            
+                                                            <div class="form-group form-default form-static-label">
+                                                                <input type="text" name="numero" id="numero" class="form-control" required="required" value="${telefone.numero}">
+                                                                <span class="form-bar"></span>
+                                                                <label class="float-label">Número</label>
+                                                            </div>
+															
+															<button class="btn btn-success waves-effect waves-light">Salvar</button>
+															
+														</form>
+														
+													</div>
+														
+												</div>
+											</div>
+										</div>
+
+										<span id="msg">${msg}</span>
+										
+										<div style="height: 300px; overflow: scroll;">
+											<table class="table" id="tabelaResultadosview">
+												<thead>
+													<tr>
+														<th scope="col">Id</th>
+														<th scope="col">Número</th>
+														<th scope="col">Excluir</th>
+														<th scope="col">Atualizar</th>
+													</tr>
+												</thead>
+												<tbody>
+													<c:forEach items="${telefones}" var="f">
+														<tr>
+															<td><c:out value="${f.id}"></c:out></td>
+															<td><c:out value="${f.numero}"></c:out></td>
+															<td><a class="btn btn-success" href="<%= request.getContextPath() %>/ServletTelefone?acao=excluir&id=${f.id}&userPai=${modelLogin.id}">Excluir</a></td>
+															<!-- ATUALIZEI AQUI -->
+															<td><a class="btn btn-primary waves-effect waves-light" href="<%= request.getContextPath() %>/ServletTelefone?userPai=${modelLogin.id}&acao=atualizar&id=${f.id}" >Atualizar</a></td>
+															<!-- ATUALIZEI AQUI -->
+														</tr>
+													</c:forEach>
+												</tbody>
+											</table>
+										</div>
+										
+									</div>
                                     <!-- Page-body end -->
                                 </div>
                                 <div id="styleSelector"> </div>
@@ -54,7 +112,14 @@
     </div>
         
     <jsp:include page="javascriptfile.jsp"></jsp:include>
-    
+   
+<script type="text/javascript">
+
+$("#numero").keypress(function(event) {
+	return /\d/.test(String.fromCharCode(event.keyCode));
+});
+
+</script> 
 </body>
 
 </html>

@@ -771,3 +771,16 @@ Criamos o DAOTelefoneRepository, e dentro dele fizemos os métodos de consulta, c
 
 Agora vamos adicionar o botão de telefone na tela. Um detalhe é que neste botão, teremos um href. Isto para que ao ser acionado, ele mande as informações para a Servlet que
 colocaremos como endereço, e assim a Servlet capture os parâmetros e faça o que tem que ser feito. Para isso, este botão será uma tag <a>, e não o <button> tradicional.
+
+Agora temos uma ServletTelefone que é responsável por gravar e deletar números de telefone de acordo com o usuário.
+
+PERMITINDO APENAS NÚMEROS:
+
+No campo de número do telefone, atualmente se aceita qualquer caractecer, mas queremos mudar isso. Para fazer com que os campos de números aceitem só números, fizemos uma
+função JS que recebe uma expressão regular, pegando o id do campo HTML, e fazendo com que aquele campo só aceite número. Ex.:
+
+$("#cep").keypress(function(event) {
+	return /\d/.test(String.fromCharCode(event.keyCode));
+});
+
+Desta forma, o campo de CEP só aceitará números.
