@@ -60,5 +60,5 @@ public class ModelTelefone implements Serializable {
 		ModelTelefone other = (ModelTelefone) obj;
 		return Objects.equals(id, other.id);
 	}
-	
+
 }

@@ -81,7 +81,6 @@
 														<th scope="col">Id</th>
 														<th scope="col">Número</th>
 														<th scope="col">Excluir</th>
-														<th scope="col">Atualizar</th>
 													</tr>
 												</thead>
 												<tbody>
@@ -90,9 +89,6 @@
 															<td><c:out value="${f.id}"></c:out></td>
 															<td><c:out value="${f.numero}"></c:out></td>
 															<td><a class="btn btn-success" href="<%= request.getContextPath() %>/ServletTelefone?acao=excluir&id=${f.id}&userPai=${modelLogin.id}">Excluir</a></td>
-															<!-- ATUALIZEI AQUI -->
-															<td><a class="btn btn-primary waves-effect waves-light" href="<%= request.getContextPath() %>/ServletTelefone?userPai=${modelLogin.id}&acao=atualizar&id=${f.id}" >Atualizar</a></td>
-															<!-- ATUALIZEI AQUI -->
 														</tr>
 													</c:forEach>
 												</tbody>

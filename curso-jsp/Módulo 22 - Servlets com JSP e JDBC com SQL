@@ -784,3 +784,61 @@ $("#cep").keypress(function(event) {
 });
 
 Desta forma, o campo de CEP só aceitará números.
+
+DATA DE NASCIMENTO:
+
+Vamos criar este campo para os usuários. Em ModelLogin, colocamos o atributo Date dataNascimento. Depois, fizemos um alter table em model_login, no DB, para add o campo do 
+tipo date. Já em usuário.jsp, adicionamos este campo copiando todo o div do atributo Nome. Mudamos o id, o name, o value. Depois disso, fomos no script em usuario.jsp, e
+copiamos um código que o Alex disponibilizou na aula 72. Este código faz uso de um calendário do JQuery. Tivemos também que pegar um link de estilização (CSS) do jquery, que
+não tinha funcionado inicialmente. Depois de adicionarmos este link, o campo de data apareceu o calendário normalmente.
+
+CAMPO DE SALÁRIO:
+
+Vamos trabalhar com o salário de cada usuário. Para isso, baixamos uma funcionalidade chamada jquery maskMoney. Fiz o download pelo link
+https://files.rafaelwendel.com/jquery.maskMoney.js. Da página que abriu, salvei o arquivo como arquivo js diretamente na pasta assets/js da nossa aplicação. E assim, essa
+máscara já está disponível para usarmos. Agora, fiz o mesmo procedimento acima: a) adicionei o atributo renda mensal dentro de ModelLogin. b) em usuario.jsp, copiei o div de
+data de nascimento e transformei no campo de renda mensal, mudando name, value e id. c) ainda em usuario.jsp, adicionei um script para o campo de renda, que formata este
+campo para exibir um valor em R$.
+
+Detalhe importante na ServletUsuario: quando resgatamos os valor da renda passado na tela, por meio de request.getParameter(), ele vem com "R$ " e "," separando casas
+decimais e etc. Mas isso não é desejável na hora de salvar no DB. Por isso, ao resgatarmos o valor da renda mensal, fazemos o seguinte dentro da Servlet:
+
+rendaMensal = rendaMensal.split("\\ ")[1].replaceAll("\\.", "").replaceAll("\\,", ".");
+
+Passamos um split para quebrar a String onde tinha espaço em branco (depois de "R$ "), e o replaceAll, com uma regex para retirar o ponto e deixar em branco, além de outra
+regex para substituir vírgulas por pontos.
+d) fui no repository de usuário e adicionei os valores a serem registrados nos comandos sql. e) fui no DB, e dentro de model_login, adicionei a coluna de renda mensal:
+
+alter table model_login add column rendamensal double precision;
+
+Com double precision, o número pode ter até 15 casas decimais.
+
+RESOLVENDO BUGS DE DATA E MONEY:
+
+Para resolver o bug da renda mensal, que quando era salva no DB perdia sua formatação na tela, criamos uma constante dentro do script para formatar com base no modo
+brasileiro de moedas. Portanto, no script temos:
+
+const formatter = new Intl.NumberFormat('pt-BR', {
+	currency: 'BRL',
+	minimumFractionDigits: 2
+});
+
+$("#rendaMensal").val(formatter.format($("#rendaMensal").val()));
+**Aqui é lido da direita para a esquerda: o valor da renda mensal é pego e formatado com base em formatter, e depois disso, é reatribuído e passdo para a tela com a
+formatação certa.
+$("#rendaMensal").focus();
+**Este focus foi colocado para que o "R$" voltasse a aparecer automaticamente, uma vez que não estava aparecendo sem o focus.
+
+Para corrigir o bug da data, fizemos alguns ajustes na hora de settar a data no doPost da Servlet, e também fizemos ajustes no script de usuario.jsp, passando a região
+correta do formato da data.
+
+IMPEDINDO TELEFONES DUPLICADOS POR USUÁRIO:
+
+Nesta aula, apenas fizemos um método no dao de telefone que retorna um boolean, dizendo se já existe um número de telefone para determinado usuário. A partir disso, na
+Servlet, se houver um número igual, a aplicação não deixa salvar no DB.
+
+CRIANDO TELA E FORMULÁRIO DE RELATÓRIO:
+
+Pegamos a pagina base jsp e fizemos uma cópia dela, para criar a reluser.jsp. Pegamos a estrutura de usuario.jsp, referente ao form. E em navbarmainmenu, redirecionamos o
+href, para que quando o usuário clical em cima de relatório, seja encaminhando para reluser.jsp.
+Para relatórios, é usado o doGet, e por isso, a url do form recebe um parâmetro de ação.

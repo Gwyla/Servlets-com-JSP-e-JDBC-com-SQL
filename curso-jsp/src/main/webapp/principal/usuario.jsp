@@ -78,6 +78,18 @@
                                                             </div>
                                                             
                                                             <div class="form-group form-default form-static-label">
+                                                                <input type="text" name="dataNascimento" id="dataNascimento" class="form-control" required="required" value="${modelLogin.dataNascimento}">
+                                                                <span class="form-bar"></span>
+                                                                <label class="float-label">Data de nascimento</label>
+                                                            </div>
+                                                            
+                                                            <div class="form-group form-default form-static-label">
+                                                                <input type="text" name="rendaMensal" id="rendaMensal" class="form-control" required="required" value="${modelLogin.rendaMensal}">
+                                                                <span class="form-bar"></span>
+                                                                <label class="float-label">Renda Mensal</label>
+                                                            </div>
+                                                            
+                                                            <div class="form-group form-default form-static-label">
                                                                 <input type="email" name="email" id="email" class="form-control" required="required" autocomplete="off" value="${modelLogin.email}">
                                                                 <span class="form-bar"></span>
                                                                 <label class="float-label">E-mail</label>
@@ -305,6 +317,35 @@
 </div>
 	
 <script type="text/javascript">
+
+$("#rendaMensal").maskMoney({showSymbol:true, symbol:"R$ ", decimal:",", thousands:"."});
+
+const formatter = new Intl.NumberFormat('pt-BR', {
+	currency: 'BRL',
+	minimumFractionDigits: 2
+});
+
+$("#rendaMensal").val(formatter.format($("#rendaMensal").val()));
+$("#rendaMensal").focus();
+
+var dataNascimento = $("#dataNascimento").val();
+var dateFormat = new Date(dataNascimento);
+$("#dataNascimento").val(dateFormat.toLocaleDateString('pt-BR', {timeZone: 'UTC'}));
+//$(#nome).focus();
+
+$( function() {
+	  
+	  $("#dataNascimento").datepicker({
+		    dateFormat: 'dd/mm/yy',
+		    dayNames: ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'],
+		    dayNamesMin: ['D','S','T','Q','Q','S','S','D'],
+		    dayNamesShort: ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb','Dom'],
+		    monthNames: ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'],
+		    monthNamesShort: ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'],
+		    nextText: 'Próximo',
+		    prevText: 'Anterior'
+		});
+} );
 
 $("#numero").keypress(function(event) {
 	return /\d/.test(String.fromCharCode(event.keyCode));

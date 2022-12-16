@@ -1,6 +1,7 @@
 package dao;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
@@ -21,8 +22,8 @@ public class DAOUsuarioRepository {
 		
 		if (usuario.isNovo()) /*Grava novo usuário*/{
 		
-		String sql = "INSERT INTO model_login(login, senha, nome, email, usuario_id, perfil, sexo, cep, logradouro, bairro, localidade, uf, numero)"
-				+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+		String sql = "INSERT INTO model_login(login, senha, nome, email, usuario_id, perfil, sexo, cep, logradouro, bairro, localidade, uf, numero, datanascimento, rendamensal)"
+				+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 		PreparedStatement statement = connection.prepareStatement(sql);
 
 		statement.setString(1, usuario.getLogin());
@@ -38,6 +39,8 @@ public class DAOUsuarioRepository {
 		statement.setString(11, usuario.getLocalidade());
 		statement.setString(12, usuario.getUf());
 		statement.setString(13, usuario.getNumero());
+		statement.setDate(14, usuario.getDataNascimento());
+		statement.setDouble(15, usuario.getRendaMensal());
 
 		statement.execute();
 		connection.commit();
@@ -56,7 +59,7 @@ public class DAOUsuarioRepository {
 		}
 		
 		} else { /*Atualiza usuário existente*/
-			String sql = "UPDATE model_login SET login=?, senha=?, nome=?, email=?, perfil=?, sexo=?, cep=?, logradouro=?, bairro=?, localidade=?, uf=?, numero=?"
+			String sql = "UPDATE model_login SET login=?, senha=?, nome=?, email=?, perfil=?, sexo=?, cep=?, logradouro=?, bairro=?, localidade=?, uf=?, numero=?, datanascimento=?, rendamensal=?"
 					+ " WHERE id = "+usuario.getId()+"";
 			PreparedStatement statement = connection.prepareStatement(sql);
 
@@ -72,6 +75,8 @@ public class DAOUsuarioRepository {
 			statement.setString(10, usuario.getLocalidade());
 			statement.setString(11, usuario.getUf());
 			statement.setString(12, usuario.getNumero());
+			statement.setDate(13, usuario.getDataNascimento());
+			statement.setDouble(14, usuario.getRendaMensal());
 			
 			statement.executeUpdate();
 			connection.commit();
@@ -290,6 +295,8 @@ public List<ModelLogin> consultarUsuarioListJSTLPaginado(Long usuarioLogado, Int
 			modelLogin.setLocalidade(resultado.getString("localidade"));
 			modelLogin.setUf(resultado.getString("uf"));
 			modelLogin.setNumero(resultado.getString("numero"));
+			modelLogin.setDataNascimento(resultado.getDate("datanascimento"));
+			modelLogin.setRendaMensal(resultado.getDouble("rendamensal"));
 			
 		}
 		return modelLogin;
@@ -324,6 +331,8 @@ public List<ModelLogin> consultarUsuarioListJSTLPaginado(Long usuarioLogado, Int
 			modelLogin.setLocalidade(resultado.getString("localidade"));
 			modelLogin.setUf(resultado.getString("uf"));
 			modelLogin.setNumero(resultado.getString("numero"));
+			modelLogin.setDataNascimento(resultado.getDate("datanascimento"));
+			modelLogin.setRendaMensal(resultado.getDouble("rendamensal"));
 		}
 		return modelLogin;
 	}
@@ -355,6 +364,8 @@ public List<ModelLogin> consultarUsuarioListJSTLPaginado(Long usuarioLogado, Int
 			modelLogin.setLocalidade(resultado.getString("localidade"));
 			modelLogin.setUf(resultado.getString("uf"));
 			modelLogin.setNumero(resultado.getString("numero"));
+			modelLogin.setDataNascimento(resultado.getDate("datanascimento"));
+			modelLogin.setRendaMensal(resultado.getDouble("rendamensal"));
 		}
 		return modelLogin;
 	}
@@ -384,6 +395,8 @@ public List<ModelLogin> consultarUsuarioListJSTLPaginado(Long usuarioLogado, Int
 			modelLogin.setLocalidade(resultado.getString("localidade"));
 			modelLogin.setUf(resultado.getString("uf"));
 			modelLogin.setNumero(resultado.getString("numero"));
+			modelLogin.setDataNascimento(resultado.getDate("datanascimento"));
+			modelLogin.setRendaMensal(resultado.getDouble("rendamensal"));
 		}
 		return modelLogin;
 	}
@@ -414,6 +427,8 @@ public List<ModelLogin> consultarUsuarioListJSTLPaginado(Long usuarioLogado, Int
 			modelLogin.setLocalidade(resultado.getString("localidade"));
 			modelLogin.setUf(resultado.getString("uf"));
 			modelLogin.setNumero(resultado.getString("numero"));
+			modelLogin.setDataNascimento(resultado.getDate("datanascimento"));
+			modelLogin.setRendaMensal(resultado.getDouble("rendamensal"));
 		}
 		return modelLogin;
 	}

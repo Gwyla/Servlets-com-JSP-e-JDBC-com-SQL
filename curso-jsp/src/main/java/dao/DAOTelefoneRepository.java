@@ -44,16 +44,16 @@ public class DAOTelefoneRepository {
 	}
 	
 	public void gravaTelefone(ModelTelefone modelTelefone) throws Exception {
-		
-		String sql = "insert into telefone(numero, usuario_pai_id, usuario_cad_id) values (?, ?, ?)";
-		PreparedStatement statement = connection.prepareStatement(sql);
-		
-		statement.setString(1, modelTelefone.getNumero());
-		statement.setLong(2, modelTelefone.getUsuario_pai_id().getId());
-		statement.setLong(3, modelTelefone.getUsuario_cad_id().getId());
-		
-		statement.execute();
-		connection.commit();		
+
+			String sql = "insert into telefone(numero, usuario_pai_id, usuario_cad_id) values (?, ?, ?)";
+			PreparedStatement statement = connection.prepareStatement(sql);
+
+			statement.setString(1, modelTelefone.getNumero());
+			statement.setLong(2, modelTelefone.getUsuario_pai_id().getId());
+			statement.setLong(3, modelTelefone.getUsuario_cad_id().getId());
+
+			statement.execute();
+			connection.commit();
 	}
 	
 	public void deletaTelefone(Long id) throws Exception {
@@ -66,39 +66,19 @@ public class DAOTelefoneRepository {
 		connection.commit();
 	}
 	
-	/***********************************************************************************/
-	
-	public ModelTelefone consultaTelefone(Long id) throws Exception {
-		ModelTelefone telefone = new ModelTelefone();
-		
-		String sql = "select * from telefone where id=?";
+	public boolean existeFone(String fone, Long idUser) throws Exception {
+		String sql = "select count(1) > 0 as existe from telefone where usuario_pai_id = ? and numero = ?";
+		/*Qualquer valor maior que 0 indica que já existe um telefone gravado com mesmo número para este usuário*/
 		
 		PreparedStatement statement = connection.prepareStatement(sql);
-		statement.setLong(1, id);
+		statement.setLong(1, idUser);
+		statement.setString(2, fone);
 		
 		ResultSet resultado = statement.executeQuery();
 		
-		while(resultado.next()) {
-			telefone.setId(resultado.getLong("id"));
-			telefone.setNumero(resultado.getString("numero"));
-			telefone.setUsuario_pai_id(daoUsuarioRepository.consultarUsuarioId(resultado.getLong("usuario_pai_id")));
-			telefone.setUsuario_cad_id(daoUsuarioRepository.consultarUsuarioId(resultado.getLong("usuario_cad_id")));
-		}
+		resultado.next();
 		
-		return telefone;
+		return resultado.getBoolean("existe");
 	}
 	
-	public ModelTelefone atualizaTelefone(Long id) throws Exception {
-		String sql = "update telefone set numero=? where id=?";
-		
-		PreparedStatement statement = connection.prepareStatement(sql);
-		
-		statement.setString(1, this.consultaTelefone(id).getNumero());
-		statement.setLong(2, id);
-		
-		statement.executeUpdate();
-		connection.commit();
-		
-		return this.consultaTelefone(id);
-	}
 }

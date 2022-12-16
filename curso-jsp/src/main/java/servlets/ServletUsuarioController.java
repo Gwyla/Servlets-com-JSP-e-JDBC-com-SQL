@@ -10,6 +10,8 @@ import jakarta.servlet.http.Part;
 import model.ModelLogin;
 
 import java.io.IOException;
+import java.sql.Date;
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 import org.apache.tomcat.jakartaee.commons.compress.utils.IOUtils;
@@ -118,11 +120,21 @@ public class ServletUsuarioController extends ServletGenericUtil {
 					
 				}
 				else if(acao != null && !acao.isEmpty() && acao.equalsIgnoreCase("paginar")) {
+					
 					Integer offset = Integer.parseInt(request.getParameter("pagina"));
 					List<ModelLogin> modelLogins = daoUsuarioRepository.consultarUsuarioListJSTLPaginado(super.getUserLogado(request), offset);
 					request.setAttribute("modelLogins", modelLogins);
 					request.setAttribute("totalPagina", daoUsuarioRepository.totalPagina(this.getUserLogado(request)));
 					request.getRequestDispatcher("principal/usuario.jsp").forward(request, response);
+				}
+				else if(acao != null && !acao.isEmpty() && acao.equalsIgnoreCase("imprimirRelatorioUser")) {
+					
+					String dataInicial = request.getParameter("dataInicial");
+					String dataFinal = request.getParameter("dataFinal");
+
+					request.setAttribute("dataInicial", dataInicial);
+					request.setAttribute("dataFinal", dataFinal);
+					request.getRequestDispatcher("principal/reluser.jsp").forward(request, response);
 				}
 				else {
 					List<ModelLogin> modelLogins = daoUsuarioRepository.consultarUsuarioListJSTL(super.getUserLogado(request));
@@ -157,6 +169,10 @@ public class ServletUsuarioController extends ServletGenericUtil {
 			String localidade = request.getParameter("localidade");
 			String uf = request.getParameter("uf");
 			String numero = request.getParameter("numero");
+			String dataNascimento = request.getParameter("dataNascimento");
+			String rendaMensal = request.getParameter("rendaMensal");
+			
+			rendaMensal = rendaMensal.split("\\ ")[1].replaceAll("\\.", "").replaceAll("\\,", ".");
 			
 			ModelLogin modelLogin = new ModelLogin();
 			/*Se o id é diferente de null ou vazio, a String vai ser parseada para Long, senão, será null.*/
@@ -173,7 +189,11 @@ public class ServletUsuarioController extends ServletGenericUtil {
 			modelLogin.setBairro(bairro);
 			modelLogin.setLocalidade(localidade);
 			modelLogin.setUf(uf);
-			modelLogin.setNumero(numero);
+			modelLogin.setNumero(numero);			
+			modelLogin.setDataNascimento(Date.valueOf(new SimpleDateFormat("yyyy-mm-dd").format(new SimpleDateFormat("dd/mm/yyyy").parse(dataNascimento))));
+			/*Segundo o Alex, a leitura é feita da direita para a esquerda: ele pega a variável dataNascimento da tela, converte essa data no padrão com barras, converte
+			 * em texto para o formato com traços, e por fim, converte em data novamente.*/
+			modelLogin.setRendaMensal(Double.valueOf(rendaMensal));
 			
 			if (ServletFileUpload.isMultipartContent(request)) {
 				Part part = request.getPart("fileFoto"); /*Pega a foto da tela*/
