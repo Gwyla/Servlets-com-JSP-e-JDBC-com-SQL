@@ -4,4 +4,10 @@
   <welcome-file-list>
     <welcome-file>index.jsp</welcome-file>
   </welcome-file-list>
+  
+  <!-- A session config abaixo define o tempo que a conexão vai durar com o usuário logado, em minutos -->
+<!--   <session-config> -->
+<!--     <session-timeout>1</session-timeout> -->
+<!-- </session-config> -->
+
 </web-app>

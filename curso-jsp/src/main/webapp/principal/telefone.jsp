@@ -45,9 +45,15 @@
 														<form class="form-material" action="<%= request.getContextPath() %>/ServletTelefone" method="post" id="formFone">
 
 															<div class="form-group form-default form-static-label">
+																<input type="text" name="idFone" id="idFone" class="form-control"
+																	readonly="readonly" value="${telefone.id}"> <span
+																	class="form-bar"></span> <label class="float-label">Id Fone</label>
+															</div>
+															
+															<div class="form-group form-default form-static-label">
 																<input type="text" name="id" id="id" class="form-control"
 																	readonly="readonly" value="${modelLogin.id}"> <span
-																	class="form-bar"></span> <label class="float-label">Id</label>
+																	class="form-bar"></span> <label class="float-label">Id Usuário</label>
 															</div>
 															
 															<div class="form-group form-default form-static-label">
@@ -56,8 +62,8 @@
                                                                 <label class="float-label">Nome</label>
                                                             </div>
                                                             
-                                                            <div class="form-group form-default form-static-label">
-                                                                <input type="text" name="numero" id="numero" class="form-control" required="required" value="${telefone.numero}">
+                                                            <div class="form-group form-default form-static-label"><!-- Adicionei esse pattern para impedir que telefones com espaço em branco sejam salvos-->
+                                                                <input type="text" name="numero" id="numero" class="form-control" required="required" value="${telefone.numero}" pattern="[0-9]+$">
                                                                 <span class="form-bar"></span>
                                                                 <label class="float-label">Número</label>
                                                             </div>
@@ -81,6 +87,7 @@
 														<th scope="col">Id</th>
 														<th scope="col">Número</th>
 														<th scope="col">Excluir</th>
+														<th scope="col">Atualizar</th>
 													</tr>
 												</thead>
 												<tbody>
@@ -89,6 +96,7 @@
 															<td><c:out value="${f.id}"></c:out></td>
 															<td><c:out value="${f.numero}"></c:out></td>
 															<td><a class="btn btn-success" href="<%= request.getContextPath() %>/ServletTelefone?acao=excluir&id=${f.id}&userPai=${modelLogin.id}">Excluir</a></td>
+															<td><a class="btn btn-info" href="<%= request.getContextPath() %>/ServletTelefone?acao=atualizar&id=${f.id}&userPai=${modelLogin.id}">Atualizar</a></td>
 														</tr>
 													</c:forEach>
 												</tbody>

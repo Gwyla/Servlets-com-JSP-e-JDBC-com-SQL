@@ -45,17 +45,18 @@ public class DAOTelefoneRepository {
 	
 	public void gravaTelefone(ModelTelefone modelTelefone) throws Exception {
 
-			String sql = "insert into telefone(numero, usuario_pai_id, usuario_cad_id) values (?, ?, ?)";
-			PreparedStatement statement = connection.prepareStatement(sql);
+		String sql = "insert into telefone(numero, usuario_pai_id, usuario_cad_id) values (?, ?, ?)";
+		PreparedStatement statement = connection.prepareStatement(sql);
 
-			statement.setString(1, modelTelefone.getNumero());
-			statement.setLong(2, modelTelefone.getUsuario_pai_id().getId());
-			statement.setLong(3, modelTelefone.getUsuario_cad_id().getId());
+		statement.setString(1, modelTelefone.getNumero());
+		statement.setLong(2, modelTelefone.getUsuario_pai_id().getId());
+		statement.setLong(3, modelTelefone.getUsuario_cad_id().getId());
 
-			statement.execute();
-			connection.commit();
+		statement.execute();
+		connection.commit();
+
 	}
-	
+
 	public void deletaTelefone(Long id) throws Exception {
 		String sql = "delete from telefone where id = ?";
 		
@@ -81,4 +82,36 @@ public class DAOTelefoneRepository {
 		return resultado.getBoolean("existe");
 	}
 	
+/*******************************************************************************************/	
+	public void atualizaTelefone(ModelTelefone modelTelefone, Long idFone) throws Exception {
+		
+		String sql = "update telefone set numero=? where id = ?";
+
+		PreparedStatement statement = connection.prepareStatement(sql);
+		statement.setString(1, modelTelefone.getNumero());
+		statement.setLong(2, idFone);
+
+		statement.executeUpdate();
+		connection.commit();
+	}
+	
+	public ModelTelefone consultaTelefone(Long id) throws Exception {
+		ModelTelefone telefone = new ModelTelefone();
+		
+		String sql = "select * from telefone where id = ?";
+		
+		PreparedStatement statement = connection.prepareStatement(sql);
+		statement.setLong(1, id);
+		
+		ResultSet resultado = statement.executeQuery();
+		
+		while (resultado.next()) {
+			telefone.setId(resultado.getLong("id"));
+			telefone.setNumero(resultado.getString("numero"));
+			telefone.setUsuario_cad_id(daoUsuarioRepository.consultarUsuarioId(resultado.getLong("usuario_cad_id")));
+			telefone.setUsuario_pai_id(daoUsuarioRepository.consultarUsuarioId(resultado.getLong("usuario_pai_id")));
+		}
+		
+		return telefone;
+	}
 }

@@ -43,6 +43,17 @@ public class ModelTelefone implements Serializable {
 	public void setUsuario_pai_id(ModelLogin usuario_pai_id) {
 		this.usuario_pai_id = usuario_pai_id;
 	}
+	
+	public boolean isNovo() {
+
+		if (this.id == null) {
+			return true; /* Insere novo usuário */
+		} else if (this.id != null && this.id > 0) {
+			return false; /* Atualiza usuário existente */
+		}
+
+		return id == null;
+	}
 
 	@Override
 	public int hashCode() {
