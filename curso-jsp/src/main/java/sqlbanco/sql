@@ -139,3 +139,14 @@ alter table model_login add column rendamensal double precision;
 -----------------------------------------------------------------------------------------
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 -----------------------------------------------------------------------------------------
+
+O SQL ABAIXO SERÁ USADO NA TELA DE TELEFONES
+
+select users.nome as nome, tel.numero as numero, users.perfil as perfil, tel.status as status
+from model_login as users, telefone as tel
+where users.id = tel.usuario_pai_id and perfil = 'SECRETARIA'
+order by nome ASC, status = 'INATIVO';
+
+-----------------------------------------------------------------------------------------
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+-----------------------------------------------------------------------------------------

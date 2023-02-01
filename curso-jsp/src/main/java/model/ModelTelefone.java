@@ -11,6 +11,15 @@ public class ModelTelefone implements Serializable {
 	private String numero;
 	private ModelLogin usuario_cad_id;
 	private ModelLogin usuario_pai_id;
+	private String status;
+
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
 
 	public Long getId() {
 		return id;

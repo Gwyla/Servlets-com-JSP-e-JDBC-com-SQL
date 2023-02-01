@@ -61,28 +61,36 @@ public class ServletTelefone extends ServletGenericUtil {
 				request.setAttribute("msg", "Telefone em edição...");
 				request.setAttribute("modelLogin", modelLogin);
 				//request.getRequestDispatcher("principal/telefone.jsp").forward(request, response);
+			} else if (acao != null && !acao.isEmpty() && acao.equalsIgnoreCase("listaFone")) {
+				
+				List<Object> dados = daoTelefoneRepository.listaFoneComStatus();
+				
+				request.setAttribute("telefones", dados);
+
+				request.setAttribute("modelLogin", dados);
 			}
 
 			//iduser
 			String userPai = request.getParameter("userPai");
+			
 			if (userPai != null && !userPai.isEmpty()) {
 
 				ModelLogin modelLogin = daoUsuarioRepository.consultarUsuarioId(Long.parseLong(userPai));
 
-				List<ModelTelefone> telefones = daoTelefoneRepository.listaFone(modelLogin.getId());
+				List<ModelTelefone> telefones = daoTelefoneRepository.listaFone(Long.parseLong(userPai));
+				
 				request.setAttribute("telefones", telefones);
 
 				request.setAttribute("modelLogin", modelLogin);
 				request.getRequestDispatcher("principal/telefone.jsp").forward(request, response);
-
+				
 			} else {
-
 				List<ModelLogin> modelLogins = daoUsuarioRepository.consultarUsuarioListJSTL(super.getUserLogado(request));
 				request.setAttribute("modelLogins", modelLogins);
 				request.setAttribute("totalPagina", daoUsuarioRepository.totalPagina(this.getUserLogado(request)));
 				request.getRequestDispatcher("principal/usuario.jsp").forward(request, response);
 			}
-
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -95,15 +103,17 @@ public class ServletTelefone extends ServletGenericUtil {
 			String usuario_pai_id = request.getParameter("id");
 			String numero = request.getParameter("numero");
 			String idFone = request.getParameter("idFone");
+			String status = request.getParameter("status");
 			
-			if (!daoTelefoneRepository.existeFone(numero, Long.valueOf(usuario_pai_id))) {
+			if (!daoTelefoneRepository.existeFone(numero, Long.valueOf(usuario_pai_id), status)) {
 				/*Ou seja, se não existir um telefone com este número, só então ele deixa gravar o número. */
 				ModelTelefone modelTelefone = new ModelTelefone();
 
 				modelTelefone.setNumero(numero);
 				modelTelefone.setUsuario_pai_id(daoUsuarioRepository.consultarUsuarioId(Long.parseLong(usuario_pai_id)));
 				modelTelefone.setUsuario_cad_id(super.getUserLogadoObjt(request));
-				
+				modelTelefone.setStatus(status);
+
 				if (idFone == null || idFone == "") {
 
 					daoTelefoneRepository.gravaTelefone(modelTelefone);

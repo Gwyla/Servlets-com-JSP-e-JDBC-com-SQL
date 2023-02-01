@@ -1,18 +1,21 @@
 package dao;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 import connection.SingleConnectionBanco;
 import model.ModelLogin;
+import model.ModelTelefone;
 
 public class DAOUsuarioRepository {
 
 	private Connection connection;
-
+	
 	public DAOUsuarioRepository() {
 		connection = SingleConnectionBanco.getConnection();
 	}
@@ -105,7 +108,7 @@ public class DAOUsuarioRepository {
 	 * vai exibir este usuário na tela.
 	 */
 	
-public List<ModelLogin> consultarUsuarioListJSTLPaginado(Long usuarioLogado, Integer offset) throws Exception {
+	public List<ModelLogin> consultarUsuarioListJSTLPaginado(Long usuarioLogado, Integer offset) throws Exception {
 		
 		List<ModelLogin> retorno = new ArrayList<>();
 		
@@ -156,6 +159,60 @@ public List<ModelLogin> consultarUsuarioListJSTLPaginado(Long usuarioLogado, Int
 		
 		return pagina.intValue();
 
+	}
+	
+	public List<ModelLogin> consultarUsuarioListJSTLRel(Long usuarioLogado) throws Exception {
+		
+		List<ModelLogin> retorno = new ArrayList<>();
+		String sql = "select * from model_login where useradmin is false and usuario_id = " + usuarioLogado;
+		PreparedStatement statement = connection.prepareStatement(sql);
+		
+		ResultSet resultado = statement.executeQuery();
+		
+		while(resultado.next()) {
+			ModelLogin modelLogin = new ModelLogin();
+			
+			modelLogin.setId(resultado.getLong("id"));
+			modelLogin.setNome(resultado.getString("nome"));
+			modelLogin.setEmail(resultado.getString("email"));
+			modelLogin.setLogin(resultado.getString("login"));
+			//modelLogin.setSenha(resultado.getString("senha")); Por questão de segurança, não exibiremos a senha.
+			modelLogin.setPerfil(resultado.getString("perfil"));
+			modelLogin.setSexo(resultado.getString("sexo"));
+			modelLogin.setTelefones(this.listaFone(modelLogin.getId()));
+			
+			retorno.add(modelLogin);
+		}
+		
+		return retorno;
+	}
+	
+	public List<ModelLogin> consultarUsuarioListJSTLRel(Long usuarioLogado, String dataInicial, String dataFinal) throws Exception {
+		
+		List<ModelLogin> retorno = new ArrayList<>();
+		String sql = "select * from model_login where useradmin is false and usuario_id = " + usuarioLogado + " and datanascimento >= ? and datanascimento <= ?";
+		PreparedStatement statement = connection.prepareStatement(sql);
+		statement.setDate(1, Date.valueOf(new SimpleDateFormat("yyyy-mm-dd").format(new SimpleDateFormat("dd/mm/yyyy").parse(dataInicial))));
+		statement.setDate(2, Date.valueOf(new SimpleDateFormat("yyyy-mm-dd").format(new SimpleDateFormat("dd/mm/yyyy").parse(dataFinal))));
+		
+		ResultSet resultado = statement.executeQuery();
+		
+		while(resultado.next()) {
+			ModelLogin modelLogin = new ModelLogin();
+			
+			modelLogin.setId(resultado.getLong("id"));
+			modelLogin.setNome(resultado.getString("nome"));
+			modelLogin.setEmail(resultado.getString("email"));
+			modelLogin.setLogin(resultado.getString("login"));
+			//modelLogin.setSenha(resultado.getString("senha")); Por questão de segurança, não exibiremos a senha.
+			modelLogin.setPerfil(resultado.getString("perfil"));
+			modelLogin.setSexo(resultado.getString("sexo"));
+			modelLogin.setTelefones(this.listaFone(modelLogin.getId()));
+			
+			retorno.add(modelLogin);
+		}
+		
+		return retorno;
 	}
 	
 	public List<ModelLogin> consultarUsuarioListJSTL(Long usuarioLogado) throws Exception {
@@ -452,5 +509,31 @@ public List<ModelLogin> consultarUsuarioListJSTLPaginado(Long usuarioLogado, Int
 		statement.executeUpdate();
 		connection.commit();
 		
+	}
+	
+	public List<ModelTelefone> listaFone(Long idUserPai) throws Exception {
+		List<ModelTelefone> listTelefones = new ArrayList<>();
+		
+		String sql = "select * from telefone where usuario_pai_id = ?";		
+		PreparedStatement statement = connection.prepareStatement(sql);
+		
+		statement.setLong(1, idUserPai);
+		
+		ResultSet resultado = statement.executeQuery();
+		
+		while (resultado.next()) {
+			
+			ModelTelefone telefone = new ModelTelefone();
+			
+			telefone.setId(resultado.getLong("id"));
+			telefone.setNumero(resultado.getString("numero"));
+			telefone.setUsuario_cad_id(this.consultarUsuarioId(resultado.getLong("usuario_cad_id")));
+			telefone.setUsuario_pai_id(this.consultarUsuarioId(resultado.getLong("usuario_pai_id")));
+			telefone.setStatus(resultado.getString("status"));
+			
+			listTelefones.add(telefone);
+		}
+		
+		return listTelefones;
 	}
 }

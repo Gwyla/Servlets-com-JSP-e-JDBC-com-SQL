@@ -83,10 +83,9 @@
 												<div class="py-3">
 													<button class="btn btn-primary" type="button"
 														data-toggle="collapse" data-target="#cadastroFone"
-														aria-expanded="false" aria-controls="collapseExample">Cadastrar telefone</button>
+														aria-expanded="false" aria-controls="collapseExample">Cadastrar
+														telefone</button>
 												</div>
-												
-												<!-- Os códigos acima e abaixo são responsáveis por esconder o form atrás do botão -->
 												
 												<div class="collapse" id="cadastroFone">
 													<div class="row">
@@ -95,7 +94,9 @@
 															<div class="card">
 																<div class="card-block">
 																	<h4 class="sub-title">Cadastro de telefone</h4>
-																	<form class="form-material" action="<%= request.getContextPath() %>/ServletTelefone" method="post" id="formFone">
+																	<form class="form-material"
+																		action="<%= request.getContextPath() %>/ServletTelefoneStatus"
+																		method="post" id="formFone">
 
 																		<div class="form-group form-default form-static-label">
 																			<input type="text" name="idFone" id="idFone"

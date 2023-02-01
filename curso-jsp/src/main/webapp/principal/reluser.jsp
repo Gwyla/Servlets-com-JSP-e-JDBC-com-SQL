@@ -1,5 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
     pageEncoding="ISO-8859-1"%>
+    
+<%@ taglib prefix = "c" uri = "http://java.sun.com/jsp/jstl/core" %>
 
 
 <!-- TODAS AS PÁGINAS DO SISTEMA PODEM SEGUIR ESSA ESTRUTURA -->
@@ -44,7 +46,7 @@
 														<h4 class="sub-title">Relatório de usuário</h4>														
 														<form class="form-material" action="<%= request.getContextPath() %>/ServletUsuarioController" method="get" id="formUser">
 															
-															<input type="hidden" name="acao" value="imprimirRelatorioUser">
+															<input type="hidden" id="acaoImprimirRelatorioTipo" name="acao" value="imprimirRelatorioUser">
 															
 															<div class="form-row align-items-center">
 																
@@ -61,11 +63,47 @@
 																</div>
 																
 																<div class="col-auto">
-																	<button type="submit" class="btn btn-primary mb-2">Imprimir Relatório</button>
+																	<button type="button" onclick="imprimirHtml();" class="btn btn-primary mb-2">Imprimir Relatório</button>
+																	<button type="button" onclick="imprimirPdf();" class="btn btn-primary mb-2">Imprimir PDF</button>
 																</div>
 															</div>
 														</form>
-														
+
+														<div style="height: 300px; overflow: scroll;">
+															<table class="table" id="tabelaResultadosview">
+																<thead>
+																	<tr>
+																		<th scope="col">Id</th>
+																		<th scope="col">Nome</th>
+																		<th scope="col">Telefones</th>
+																		<th scope="col">Status</th>
+																	</tr>
+																</thead>
+																<tbody>
+																	<c:forEach items="${listaUser}" var="ml">
+																		<tr>
+																			<td><c:out value="${ml.id}"></c:out></td>
+																			<td><c:out value="${ml.nome}"></c:out></td>
+																			<td>
+<%-- 																				<c:forEach items="${ml.telefones}" var="fone"> --%>
+<!-- 																					<tr> -->
+<%-- 																						<td><c:out value="${fone.status}"></c:out></td> --%>
+<!-- 																					</tr> -->
+<%-- 																				</c:forEach> --%>
+																			</td>
+																		</tr>
+																		<c:forEach items="${ml.telefones}" var="fone">
+																			<tr>
+																				<td/>
+																				<td style="font-size: 12px"><c:out value="${fone.numero}"></c:out></td>
+																				<td style="font-size: 12px"><c:out value="${fone.status}"></c:out></td>
+																			</tr>
+																		</c:forEach>
+																	</c:forEach>
+																</tbody>
+															</table>
+														</div>
+
 													</div>
 												</div>
 											</div>
@@ -85,6 +123,17 @@
     <jsp:include page="javascriptfile.jsp"></jsp:include>
     
 <script type="text/javascript">
+
+function imprimirPdf() {
+	document.getElementById("acaoImprimirRelatorioTipo").value = 'imprimirRelatorioPDF';
+	$("#formUser").submit();
+	return false;
+}
+
+function imprimirHtml() {
+	document.getElementById("acaoImprimirRelatorioTipo").value = 'imprimirRelatorioUser';
+	$("#formUser").submit();
+}
 
 $( function() {
 	  

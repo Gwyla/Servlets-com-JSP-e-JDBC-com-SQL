@@ -842,3 +842,53 @@ CRIANDO TELA E FORMULÁRIO DE RELATÓRIO:
 Pegamos a pagina base jsp e fizemos uma cópia dela, para criar a reluser.jsp. Pegamos a estrutura de usuario.jsp, referente ao form. E em navbarmainmenu, redirecionamos o
 href, para que quando o usuário clical em cima de relatório, seja encaminhando para reluser.jsp.
 Para relatórios, é usado o doGet, e por isso, a url do form recebe um parâmetro de ação.
+
+Criamos 2 campos, data inicial e data final, pois este será um dos filtros da busca para montar um relatório. Se ambos os campos estiverem vazios, nosso relatório listará
+todos os usuários indiscriminadamente. No DAO, criamos um métodos para listar usuários sem offset de 5, que foi usado para montar a paginação. E em reluser.jsp, montamos uma
+table baseada em outra table que já existia em usuarios.jsp, depois do form. Essa table mostrará todos os usuários cadastrados pelo admin = 1, e traremos também os telefones
+de usuários.
+
+RELATÓRIO COM TELEFONES DE USUÁRIO:
+
+Para trazer os telefones de usuários neste relatório, fomos em ModelTelefone e adicionamos este atributo. Ou seja, cada usuário pode ter uma lista de telefone.
+Depois, fomos no DAO de usuários e instanciamos um daoTelefoneRepository, para ter acesso aos métodos de telefone. Porém, isso estourou um erro na aplicação, e para corrigir
+nós fomos no DAO de telefone, copiamos o método de listar telefones, e fizemos sua cópia no DAO de usuário. Não é a forma mais organizada de fazer, mas foi o que funcionou,
+e assim, pudemos tirar uma nova instância de daoTelefoneRepository da classe, para não causar mais nenhum erro.
+
+Em reluser.jsp, fomos ajustando a lista de forma que ela preenchesse a tela de maneira correta. Tentamos também dentro de ModelLogin, mas não deu muito certo.
+
+IMPRIMINDO RELATÓRIOS POR FAIXA DE DATA:
+
+Na controller de usuário, fiz a condição que se as datas eram vazias, ele exibiria todos os usuários. Se não, ele vai preencher a table de acordo com as datas passadas como
+parâmentro. Com isso, fizemos um novo método de consulta no DAO que recebe duas datas como parâmetro, para refinar a busca.
+
+Na lógica do DAO, ele vai comparar a data inicial e a data final passadas como parâmetro. Se a data de nascimento do usuário for contemplada nesse intervalo, o usuário será
+exibido na tela.
+
+INSTALAÇÃO DO JasperReport Studio:
+
+Vamos instalar esse programa para fazer relatórios mais caprichados. Pesquisei por esse nome no Google, e baixei a versão free Jaspersoft® Studio CE. Com isso, instalei o 
+que se parece com uma nova IDE. Com isso, fui no Google e pesquisei por Jasper Soft Maven, e baixei as dependencies de acordo com minha versão do jasper. Com a dependecia 
+em mãos, coloquei no pom.xml deste arquivo do curso.jsp. Fui depois na pasta do jasper, no windows, e procurei por um arquivo do tipo 'parametros de configuração'. Na linha
+que tava escrito -vm, coloquei o endereço do java na minha máquina: C:\Program Files\Java\jdk-16.0.2\bin.
+
+CRIAÇÃO DO PROJETO:
+
+Com tudo configurado, vamos criar o projeto no jasper. Criamos um JasperReport Project. E aqui, dentro do Eclipse, exportamos nosso projeto como um JAR File. Depois disso,
+voltamos pro jasper. Clicamos BDM no projeto -> properties -> java build path -> classpath -> add external jar. Depois, criamos um report com new -> jasper report.
+
+Foi aberta uma folha em branco de relatório. Fui em DataSet and Query editor -> Java Bean, e selecionei ModelLogin, com todos os seus campos, e adicionei. Com isso, fomos
+contruindo a página de relatório, com os campos que eu quisesse adicionar. Ao final disso, voltei pro eclipse e na pasta main/java, criei o pacote relatorios.
+Voltei pro jasper e peguei o caminho do arquivo reluser-jsp.jasper (do tipo Jasper Source File). No windows, selecionei esse arquivo e copiei pra dentro do pacote criado 
+aqui no eclipse. Além dele, peguei também o (Jrxml source file) e copiei para o mesmo pacote. Depois disso, é indicado DELETAR os arquivos de dentro do TIBCO JasperSoft,
+pois agora esses arquivos estão salvos no nosso projeto no eclipse. Assim se precisar alterar alguma coisa, vamos alterar nos arquivos que agora estão no eclipse.
+
+CRIANDO A CLASSE REPORTUTIL:
+
+Criamos o pacote util, que abrigará classes utilitárias. Nele, fizemos a classe ReportUtil, que inicialmente, terá um método de gerar relatório PDF.
+
+IMPRIMINDO PDF JASPER:
+
+Nessa aula, comecei com a motivação de que preciso de 2 botões na tela de relatório: um pra exibir usuário com ou sem data, e outro pra gerar o relatório em PDF e imprimi-lo.
+Com isso, usando a Servlet e a ação passada como parâmetro na URL, fiz com que essa ação se tornasse dinâmica, de forma que cada botão chama uma function JS específica,
+mudando a ação que será passada para a Servlet.

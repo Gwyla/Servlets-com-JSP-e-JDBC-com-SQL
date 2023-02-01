@@ -2,6 +2,8 @@ package model;
 
 import java.io.Serializable;
 import java.sql.Date;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ModelLogin implements Serializable {
 
@@ -25,6 +27,15 @@ public class ModelLogin implements Serializable {
 	private String localidade;
 	private String uf;
 	private String numero;
+	private List<ModelTelefone> telefones = new ArrayList<>();
+	
+	public List<ModelTelefone> getTelefones() {
+		return telefones;
+	}
+
+	public void setTelefones(List<ModelTelefone> telefones) {
+		this.telefones = telefones;
+	}
 
 	public Double getRendaMensal() {
 		return rendaMensal;
@@ -179,6 +190,16 @@ public class ModelLogin implements Serializable {
 
 	public void setSenha(String senha) {
 		this.senha = senha;
+	}
+	
+	public String getMostraTelefoneRel() {
+		String fone = "Telefone(s): \n\n";
+		
+		for (ModelTelefone modelTelefone : telefones) {
+			fone += modelTelefone.getNumero() + "\n";
+		}
+		
+		return fone;
 	}
 
 }

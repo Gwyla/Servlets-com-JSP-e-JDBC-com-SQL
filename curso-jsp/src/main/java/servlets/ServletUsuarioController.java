@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.Part;
 import model.ModelLogin;
+import util.ReportUitl;
 
 import java.io.IOException;
 import java.sql.Date;
@@ -132,10 +133,37 @@ public class ServletUsuarioController extends ServletGenericUtil {
 					String dataInicial = request.getParameter("dataInicial");
 					String dataFinal = request.getParameter("dataFinal");
 
+					if(dataInicial == null || dataInicial.isEmpty() && dataFinal == null || dataFinal.isEmpty()) {
+						request.setAttribute("listaUser", daoUsuarioRepository.consultarUsuarioListJSTLRel(super.getUserLogado(request)));
+					} else {
+						request.setAttribute("listaUser", daoUsuarioRepository.consultarUsuarioListJSTLRel(super.getUserLogado(request), dataInicial, dataFinal));
+					}
+					
 					request.setAttribute("dataInicial", dataInicial);
 					request.setAttribute("dataFinal", dataFinal);
 					request.getRequestDispatcher("principal/reluser.jsp").forward(request, response);
 				}
+				
+				else if(acao != null && !acao.isEmpty() && acao.equalsIgnoreCase("imprimirRelatorioPDF")) {
+					String dataInicial = request.getParameter("dataInicial");
+					String dataFinal = request.getParameter("dataFinal");
+					
+					List<ModelLogin> modelLogins = null;
+
+					if(dataInicial == null || dataInicial.isEmpty() && dataFinal == null || dataFinal.isEmpty()) {
+						modelLogins = daoUsuarioRepository.consultarUsuarioListJSTLRel(super.getUserLogado(request));
+					} else {
+						modelLogins = daoUsuarioRepository.consultarUsuarioListJSTLRel(super.getUserLogado(request), dataInicial, dataFinal);
+						
+					}
+					
+					byte [] relatorio = new ReportUitl().geraRelatorioPDF(modelLogins, "reluser-jsp", request.getServletContext());
+					
+					response.setHeader("Content-Disposition", "attachment;filename=arquivo.pdf");
+					response.getOutputStream().write(relatorio);
+					
+				}
+				
 				else {
 					List<ModelLogin> modelLogins = daoUsuarioRepository.consultarUsuarioListJSTL(super.getUserLogado(request));
 					request.setAttribute("modelLogins", modelLogins);
