@@ -63,46 +63,15 @@
 																</div>
 																
 																<div class="col-auto">
-																	<button type="button" onclick="imprimirHtml();" class="btn btn-primary mb-2">Imprimir Relatório</button>
-																	<button type="button" onclick="imprimirPdf();" class="btn btn-primary mb-2">Imprimir PDF</button>
-																	<button type="button" onclick="imprimirExcel();" class="btn btn-primary mb-2">Imprimir Excel</button>
+																	<button type="button" onclick="gerarGrafico();" class="btn btn-primary mb-2">Gerar gráfico</button>
 																</div>
 															</div>
 														</form>
 
-														<div style="height: 300px; overflow: scroll;">
-															<table class="table" id="tabelaResultadosview">
-																<thead>
-																	<tr>
-																		<th scope="col">Id</th>
-																		<th scope="col">Nome</th>
-																		<th scope="col">Telefones</th>
-																		<th scope="col">Status</th>
-																	</tr>
-																</thead>
-																<tbody>
-																	<c:forEach items="${listaUser}" var="ml">
-																		<tr>
-																			<td><c:out value="${ml.id}"></c:out></td>
-																			<td><c:out value="${ml.nome}"></c:out></td>
-																			<td>
-<%-- 																				<c:forEach items="${ml.telefones}" var="fone"> --%>
-<!-- 																					<tr> -->
-<%-- 																						<td><c:out value="${fone.status}"></c:out></td> --%>
-<!-- 																					</tr> -->
-<%-- 																				</c:forEach> --%>
-																			</td>
-																		</tr>
-																		<c:forEach items="${ml.telefones}" var="fone">
-																			<tr>
-																				<td/>
-																				<td style="font-size: 12px"><c:out value="${fone.numero}"></c:out></td>
-																				<td style="font-size: 12px"><c:out value="${fone.status}"></c:out></td>
-																			</tr>
-																		</c:forEach>
-																	</c:forEach>
-																</tbody>
-															</table>
+														<div style="height: 600px; overflow: scroll;">
+															<div>
+																<canvas id="myChart"></canvas>
+															</div>
 														</div>
 
 													</div>
@@ -123,24 +92,36 @@
         
     <jsp:include page="javascriptfile.jsp"></jsp:include>
     
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script type="text/javascript">
 
-function imprimirPdf() {
-	document.getElementById("acaoImprimirRelatorioTipo").value = 'imprimirRelatorioPDF';
-	$("#formUser").submit();
-	return false;
+function gerarGrafico() {
+	
+	var myChart = new Chart(
+		document.getElementById('myChart'),
+		{
+			type: 'line',
+		    data: {
+		      labels: [
+		    	  'Red',
+		    	  'Blue',
+		    	  'Yellow',
+		    	  'Green',
+		    	  'Purple',
+		    	  'Orange',
+		    	  ],
+		      datasets: [{
+		        label: 'Gráfico de média salarial',
+		        backgroundColor: 'rgb(255, 99, 132)',
+		        borderColor: 'rgb(255, 99, 132)',
+		        data: [12, 19, 3, 5, 2, 3, 7],
+		        borderWidth: 1,
+		      }]
+		    },
+		    options: {}
+	  	}
+	);
 }
-
-function imprimirHtml() {
-	document.getElementById("acaoImprimirRelatorioTipo").value = 'imprimirRelatorioUser';
-	$("#formUser").submit();
-}
-
-function imprimirExcel() {
-	document.getElementById("acaoImprimirRelatorioTipo").value = 'imprimirRelatorioExcel';
-	$("#formUser").submit();
-}
-
 
 $( function() {
 	  

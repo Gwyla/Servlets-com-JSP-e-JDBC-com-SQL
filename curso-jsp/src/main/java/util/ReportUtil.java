@@ -1,18 +1,22 @@
 package util;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 
 import jakarta.servlet.ServletContext;
+import net.sf.jasperreports.engine.JRExporter;
+import net.sf.jasperreports.engine.JRExporterParameter;
 import net.sf.jasperreports.engine.JasperExportManager;
 import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
+import net.sf.jasperreports.engine.export.JRXlsExporter;
 
 @SuppressWarnings({"rawtypes", "unchecked"}) 
-public class ReportUitl implements Serializable {
+public class ReportUtil implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -36,14 +40,46 @@ public class ReportUitl implements Serializable {
 	 * JasperExportManager é uma classe de fachada para exportar relatórios gerados em formatos populares, como PDF, HTML e XML. Essa classe contém métodos para exportar
 	 * nesses 3 formatos somente.
 	 */
+	
 	public byte[] geraRelatorioPDF(List listaDados, String nomeRelatorio, ServletContext servletContext) throws Exception {
-		
+
 		JRBeanCollectionDataSource source = new JRBeanCollectionDataSource(listaDados);
-		
-		String caminhoJasper = servletContext.getRealPath("relatorio") + File.separator + nomeRelatorio + ".jasper";
-		
+
+		String caminhoJasper = servletContext.getRealPath("relatorios") + File.separator + nomeRelatorio + ".jasper";
+
 		JasperPrint impressoraJasper = JasperFillManager.fillReport(caminhoJasper, new HashMap(), source);
-		
+
 		return JasperExportManager.exportReportToPdf(impressoraJasper);
+	}
+	
+	public byte[] geraRelatorioPDF(List listaDados, String nomeRelatorio, HashMap<String, Object> params, ServletContext servletContext) throws Exception {
+
+		JRBeanCollectionDataSource source = new JRBeanCollectionDataSource(listaDados);
+
+		String caminhoJasper = servletContext.getRealPath("relatorios") + File.separator + nomeRelatorio + ".jasper";
+
+		JasperPrint impressoraJasper = JasperFillManager.fillReport(caminhoJasper, params, source);
+
+		return JasperExportManager.exportReportToPdf(impressoraJasper);
+	}
+	
+	public byte[] geraRelatorioExcel(List listaDados, String nomeRelatorio, HashMap<String, Object> params, ServletContext servletContext) throws Exception {
+
+		JRBeanCollectionDataSource source = new JRBeanCollectionDataSource(listaDados);
+
+		String caminhoJasper = servletContext.getRealPath("relatorios") + File.separator + nomeRelatorio + ".jasper";
+
+		JasperPrint impressoraJasper = JasperFillManager.fillReport(caminhoJasper, params, source);
+		
+		JRExporter exporter = new JRXlsExporter(); //Ele que exporta em Excel
+		
+		exporter.setParameter(JRExporterParameter.JASPER_PRINT, impressoraJasper);
+		
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		exporter.setParameter(JRExporterParameter.OUTPUT_STREAM, baos);// o baos transforma esse fluxo em um byte[], que é o retorno do método.
+		
+		exporter.exportReport();
+
+		return baos.toByteArray();
 	}
 }

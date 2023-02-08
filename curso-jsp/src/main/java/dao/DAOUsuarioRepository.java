@@ -180,6 +180,7 @@ public class DAOUsuarioRepository {
 			modelLogin.setPerfil(resultado.getString("perfil"));
 			modelLogin.setSexo(resultado.getString("sexo"));
 			modelLogin.setTelefones(this.listaFone(modelLogin.getId()));
+			modelLogin.setDataNascimento(resultado.getDate("datanascimento"));
 			
 			retorno.add(modelLogin);
 		}
@@ -207,6 +208,7 @@ public class DAOUsuarioRepository {
 			//modelLogin.setSenha(resultado.getString("senha")); Por questão de segurança, não exibiremos a senha.
 			modelLogin.setPerfil(resultado.getString("perfil"));
 			modelLogin.setSexo(resultado.getString("sexo"));
+			modelLogin.setDataNascimento(resultado.getDate("datanascimento"));
 			modelLogin.setTelefones(this.listaFone(modelLogin.getId()));
 			
 			retorno.add(modelLogin);

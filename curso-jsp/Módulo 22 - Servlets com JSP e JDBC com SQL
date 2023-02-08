@@ -892,3 +892,35 @@ IMPRIMINDO PDF JASPER:
 Nessa aula, comecei com a motivação de que preciso de 2 botões na tela de relatório: um pra exibir usuário com ou sem data, e outro pra gerar o relatório em PDF e imprimi-lo.
 Com isso, usando a Servlet e a ação passada como parâmetro na URL, fiz com que essa ação se tornasse dinâmica, de forma que cada botão chama uma function JS específica,
 mudando a ação que será passada para a Servlet.
+
+Montei o relatório no software do jasper, e com isso, salvei os relatórios criados dentro da pasta relatorios. O mapeamento para esse relatorio foi feto na classe ReportUtil,
+e com isso, é montado um relatório para todos os usuários, se não for passado data nenhuma, e se for passada alguma data, aí então o relatório é com base nessas datas.
+
+FAZENDO SUBRELATÓRIO COM JASPER:
+
+Com isso, podemos fazer um subrelatório, onde para cada usuário, exibiremos sua lista de telefones. Dentro do Jasper, abri o arquivo jrxml, e clicando com o BDM no seu nome,
+cliquei em create group. Nesse agrupamento, agrupei por nome e deixei só o header selecionado. Dentro desse group, adicionei o nome e a data de nascimento do usuário, e na
+aba debaixo, em detail, será exibida a lista de telefones.
+
+Adicionei um subreport nesse relatório, e com isso, foi criado um novo relatório que exibirá a lista de telefones. Ajustei o subreport no relatório principal. Fui em
+parameters, criei um novo param com o nome de PARAM_SUB_REPORT. Com isso, cliquei no subreport e fui em properties, subreport, expression, selecionei o param e concatenei
+com a expressão que já estava lá.
+Clicamos também em Data Source Expression, e pegamos um import da classe ReportUtil, que criava um BeanCollectionDataSource. Adicionei esse caminho no report, e entre
+parenteses, passei a classe de telefones.
+Depois fui em DataSet, javabean, ..., adicionei ModelTelefone, e adicionei somente o campo de numero. Com isso, copiei os subreports criados para a pasta de relatórios.
+
+Com isso, voltamos a classe ReportUtil, e fizemos um novo método que recebe um param, que foi passado no subreport. Feito isso, na Servlet
+
+RELATÓRIO COM EXCEL E XLS
+
+Baixei a versão mais atual do apache poi no Maven e adicionei no pom.xml. Com isso, fui em ReportUtil e copiei o método que recebe params, e este novo método fará relatórios
+com excel. Criei mais um botão na tela, e na Servlet, adicionei uma condição para chamar a conversão em excel.
+
+CRIANDO GRÁFICO COM ChartJS
+
+Ele é um framework JS que trabalha com requisições ajax, no qual podemos cria SQLs, e retornar as respostas em JSON, e assim, conseguimos manipular os dados na tela.
+A nossa tela, nesse caso, sera relusergrafico.jsp. Ela não terá o envio de um form, pois iremos trabalhar com ajax para exibir os dados.
+
+Com isso, na aba getting started do site do ChartJS, pegamos uma tag script de lá adicionamos à nossa página. Além disso, no site ele nos dá um div com um canvas, no qual
+será gerado o gráfico, por isso precisamos adicioná-lo. Por fim, pegamos um último script, e passamos dentro da function gerarGrafico. Ao apertar o botão na tela, o código
+JS será executado e vai gerar o gráfico.
